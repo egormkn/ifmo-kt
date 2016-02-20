@@ -2,6 +2,8 @@ import java.util.stream.Stream;
 
 public class BinarySearch {
 
+    // PRE: i < j => a[i] >= a[j]
+    // POST: ℝ = i  ∧  a[i] <= x < a[i-1]
     public static int iterativeBinarySearch(int x, int a[]) {
         int l = 0, r = a.length, m;
         while (l < r) {
@@ -14,16 +16,18 @@ public class BinarySearch {
                 l = m + 1;
             }
         }
-        return -1;
+        return r;
     }
 
     public static int recursiveBinarySearch(int x, int a[]) {
         return recursiveBinarySearch(x, a, 0, a.length);
     }
 
+    // PRE: i < j => a[i] >= a[j]
+    // POST: ℝ = i  ∧  a[i] <= x < a[i-1]
     public static int recursiveBinarySearch(int x, int a[], int l, int r) {
-        if (l >= r) {
-            return -1;
+        if (l == r) {
+            return r;
         }
         int m = (l + r) >>> 1;
         if (x == a[m]) {
