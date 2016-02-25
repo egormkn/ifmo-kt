@@ -18,6 +18,7 @@
 - [Викиконспекты](http://neerc.ifmo.ru/wiki/)
 - [Дискретная математика (~sta)](http://neerc.ifmo.ru/~sta/)
 - [Алгоритмы и структуры данных](http://neerc.ifmo.ru/teaching/algo/index.html) ([Проверяющая система](http://neerc.ifmo.ru/pcms2client))
+- Английский язык ([Macmillan Education](https://prod.lms.macmillaneducation.com/))
 
 ---
 
