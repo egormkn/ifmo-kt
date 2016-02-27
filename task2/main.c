@@ -204,8 +204,8 @@ int main(int argc, char **argv){
 	char *name = NULL, *phone = NULL, *input = NULL, cmd[7];
 	int id;
 	fscanf(file, " ");
-	while(!feof(file)){
-		fscanf(file, "%d", &id);
+	while(!feof(file) && fscanf(file, "%d", &id) == 1){
+		fscanf(file, " ");
 		name = getword(file, 0);
 		phone = getword(file, 1);
 		if (check(name, 0) && check(phone, 1)){
