@@ -33,7 +33,7 @@ char *getword(FILE *input, int mode){ // 0 - буквы, 1 - цифры, 2 - а�
 			}
 			if(validate(c, mode)) {
 				if ((l+1) == size){
-					size += 100;
+					size *= 2;
 					word = realloc(word, size * sizeof(char));
 				}
 				word[l++] = c;
@@ -49,7 +49,7 @@ char *getword(FILE *input, int mode){ // 0 - буквы, 1 - цифры, 2 - а�
 	if(err == 1){
 		free(word);
 		word = NULL;
-		//printf("Incorrect input\n");
+		printf("Incorrect input\n");
 	}
     return word;
 }
@@ -96,7 +96,6 @@ int issubstr(char *s1, char *s2){
 void find(){
 	char *query = getword(stdin, 2);
 	if (query != NULL){
-		//printf("Searching %s...\n", query);
 		int found = 0;
 		for (int i = 0; i < book.length; i++){
 			if ((isdigit(query[0]) && !strcmp(book.contacts[i].phone, query)) || (isalpha(query[0]) && issubstr(book.contacts[i].name, query))){
@@ -105,10 +104,10 @@ void find(){
 			}
 		}
 		if(!found){
-			//printf("Contact not found.\n");
+			printf("Contact not found.\n");
 		}
 	} else {
-		//printf("Search failed.\n");
+		printf("Search failed.\n");
 	}
 	free(query);
 }
@@ -116,7 +115,7 @@ void find(){
 void delete(int id){
 	id = getId(id);
 	if(id == -1){
-		//printf("Contact with this id does not exist.");
+		printf("Contact with this id does not exist.");
 		return;
 	}
 	book.length--;
@@ -138,7 +137,7 @@ void change(){
     if (value != NULL) {
 		id = getId(id);
 		if(id == -1){
-			//printf("Contact with this id does not exist.");
+			printf("Contact with this id does not exist.");
 			free(value);
 			return;
 		}
@@ -149,7 +148,7 @@ void change(){
 		}
 		writeToFile();
 	} else {
-		//printf("Changing failed.\n");
+		printf("Changing failed.\n");
 		free(value);
 	}
 }
@@ -158,7 +157,6 @@ void create(FILE *file, int id){
 	char *name = getword(file, 0);
 	char *phone = getword(file, 1);
 	if (name != NULL && phone != NULL){
-		// printf("Loaded: %d %s %s\n", id, name, phone);
 		if (id > lastId){
 			lastId = id;
 		}
@@ -169,7 +167,7 @@ void create(FILE *file, int id){
 		book.length++;
 		writeToFile();
 	} else {
-		//printf("Loading failed: %d %s %s\n", id, name, phone);
+		printf("Loading failed: %d %s %s\n", id, name, phone);
 		free(name);
 		free(phone);
 	}
@@ -211,7 +209,7 @@ int main(int argc, char **argv){
 			free(book.contacts);
 			return 0;
 		} else {
-			//printf("Unknown command. Try again.\n");
+			printf("Unknown command. Try again.\n");
 		}
 		fflush(stdout);
 	}
