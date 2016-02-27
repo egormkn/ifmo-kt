@@ -19,7 +19,7 @@ char *filename;
 int id = 0, temp;
 
 void writeToFile(){
-	FILE file = fopen(filename, "wt");
+	FILE *file = fopen(filename, "wt");
 	for(int i = 0; i < book.length; i++){
 		fprintf(file, "%d %s %s\n", book.contacts[i].id, book.contacts[i].name, book.contacts[i].phone);
 	}
@@ -159,7 +159,7 @@ char *getword(FILE *input, int mode){
 
 int main(int argc, char **argv){
 	filename = argv[1];
-	FILE file = fopen(filename, "at+");
+	FILE *file = fopen(filename, "at+");
 	if(file == NULL){
 		printf("Failed to open file\n");
 		return 0;
@@ -221,3 +221,4 @@ int main(int argc, char **argv){
 		fflush(stdout);
 	}
 }
+
