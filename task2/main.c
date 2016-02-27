@@ -16,7 +16,14 @@ typedef struct {
 
 Contactbook book;
 char *filename;
-int id = 0, temp;
+int lastId = 0;
+
+int max(int a, int b){
+	if (a > b){
+		return a;
+	}
+	return b;
+}
 
 void writeToFile(){
 	FILE *file = fopen(filename, "wt");
@@ -26,7 +33,10 @@ void writeToFile(){
 	fclose(file);
 }
 
-int check(char *input){
+int check(char *input, int mode){
+	if(input == NULL){
+		return 0;
+	}
 	if (!strcmp(input, "")){
         printf("Empty string o_O.\n");
         return 0;
@@ -88,37 +98,43 @@ void find(char *query){
 	}
 }
 
-void delete(int i){
-	if(i < 0 || i >= book.length){
+void delete(int id){
+	if(id < 0 || id >= book.length){
 		printf("Contact with id does not exist.");
 		return;
 	}
+	for(int i = 0; i < book.length; i++){
+		if (book.contacts[i].id == id){
+			id = i;
+			break;
+		}
+	}
 	book.length--;
-	free(book.contacts[i].name);
-	free(book.contacts[i].phone);
-	book.contacts[i].id = book.contacts[book.length].id;
-	book.contacts[i].name = book.contacts[book.length].name;
-	book.contacts[i].phone = book.contacts[book.length].phone;
+	free(book.contacts[id].name);
+	free(book.contacts[id].phone);
+	book.contacts[id].id = book.contacts[book.length].id;
+	book.contacts[id].name = book.contacts[book.length].name;
+	book.contacts[id].phone = book.contacts[book.length].phone;
 	book.contacts = (Contact*) realloc(book.contacts, (book.length + 1) * sizeof(Contact));
 	writeToFile();
 }
 
-void change(int i, char *cmd, char *value){
+void change(int i, int mode, char *value){
 	if(i < 0 || i >= book.length){
 		printf("Contact with id does not exist.");
+		free(value);
 		return;
 	}
-    if (!strcmp(cmd, "number")){
-        strcpy(book.contacts[i].phone, value);
-    } else if (!strcmp(cmd, "name")) {
-        strcpy(book.contacts[i].name, value);
+    if (mode){
+        book.contacts[i].phone = value;
     } else {
-        printf ("Unknown command.\n");
+        book.contacts[i].name = value;
     }
     writeToFile();
 }
 
 void add(int mode, int id, char *name, char *phone){
+	lastId = max(lastId, id);
 	book.contacts = (Contact*) realloc(book.contacts, (book.length + 1) * sizeof(Contact));
 	book.contacts[book.length].id = id;
 	book.contacts[book.length].name = name;
@@ -133,15 +149,23 @@ int validate(char c, int mode){ // 0 - буквы, 1 - цифры
 			return isalpha(c);
 		case 1:
 			return isdigit(c);
-		default:
+		case 2:
 			return isalnum(c);
+		default:
+			return 1;
 	}
 }
 
 char *getword(FILE *input, int mode){
-    int l = 0, size = 1;
+    int l = 0, size = 1, err = 0;
     char *word = NULL, c = fgetc(input);
-    while (c != EOF){
+	while (c != EOF && isspace(c)){
+		c = fgetc(input);
+	}
+	if(mode == 1 && c == '+'){
+		c = fgetc(input);
+	}
+	while (c != EOF){
 		if(validate(c, mode)) {
 			if ((l+1) == size){
 				size *= 2;
@@ -149,16 +173,26 @@ char *getword(FILE *input, int mode){
 			}
 			word[l++] = c;
 			word[l] = '\0';
-		} else if (isspace(c) && l > 0){
-			break;
+		} else {
+			if ((isspace(c) > 0) && (l > 0)){
+				break;
+			}
+			if(mode != 1 && c != '(' && c != ')' && c != '-'){
+				err = 1;
+			}
 		}
 		c = fgetc(input);
+	}
+	if(err == 1){
+		free(word);
+		word = NULL;
+		printf("Incorrect input\n");
 	}
     return word;
 }
 
 int main(int argc, char **argv){
-	filename = argv[1];
+	filename = (argc > 1) ? argv[1] : "book.txt";
 	FILE *file = fopen(filename, "at+");
 	if(file == NULL){
 		printf("Failed to open file\n");
@@ -168,13 +202,17 @@ int main(int argc, char **argv){
 	book.length = 0;
 	book.contacts = NULL;
 	char *name = NULL, *phone = NULL, *input = NULL, cmd[7];
+	int id;
+	fscanf(file, " ");
 	while(!feof(file)){
 		fscanf(file, "%d", &id);
 		name = getword(file, 0);
 		phone = getword(file, 1);
-		printf("Loaded '%d %s %s'\n", id, name, phone);
-		if (check(name) && check(phone)){
-			add(0, id++, name, phone);
+		if (check(name, 0) && check(phone, 1)){
+			printf("Loaded: %d %s %s\n", id, name, phone);
+			add(0, id, name, phone);
+		} else {
+			printf("Loading failed: %d %s %s\n", id, name, phone);
 		}
 	}
 	fclose(file);
@@ -182,30 +220,30 @@ int main(int argc, char **argv){
 	while(1){
 		scanf("%s", cmd);
 		printf("> %s\n", cmd);
-		if (strcmp(cmd, "find") == 0){
+		if (!strcmp(cmd, "find")){
 			input = getword(stdin, 2);
-			if (check(input)){
+			if (check(input, 2)){
 				find(input);
 			}
 			free(input);
 		} else if (!strcmp(cmd, "create")){
 			name = getword(stdin, 0);
 			phone = getword(stdin, 1);
-			if (check(name) && check(phone))
-			add(0, id++, name, phone);
+			if (check(name, 0) && check(phone, 1))
+			add(0, lastId+1, name, phone);
 		} else if (!strcmp(cmd, "delete")){
 			int del;
 			scanf("%d", &del);
 			delete(del);
 		} else if (!strcmp(cmd, "change")){
 			scanf("%d %s", &id, cmd);
-			// TODO: check
-            input = getword(stdin, strcmp(cmd, "number") ? 0 : 1);
-            if (check(input)) {
-				change(id, cmd, input);
+			int mode = strcmp(cmd, "number") ? 0 : 1;
+            input = getword(stdin, mode);
+            if (check(input, mode)) {
+				change(id, mode, input);
 			}
 		} else if (!strcmp(cmd, "exit")){
-			writeToFile(argv[1]);
+			writeToFile(filename);
 			free(name);
 			free(phone);
 			free(input);
@@ -221,4 +259,3 @@ int main(int argc, char **argv){
 		fflush(stdout);
 	}
 }
-
