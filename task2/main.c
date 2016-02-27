@@ -168,7 +168,7 @@ char *getword(FILE *input, int mode){
 	while (c != EOF){
 		if(validate(c, mode)) {
 			if ((l+1) == size){
-				size *= 2;
+				size += 100;
 				word = realloc(word, size * sizeof(char));
 			}
 			word[l++] = c;
