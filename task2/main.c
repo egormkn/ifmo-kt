@@ -212,7 +212,7 @@ int main(int argc, char **argv){
 			printf("Loaded: %d %s %s\n", id, name, phone);
 			add(0, id, name, phone);
 		} else {
-			printf("Loading failed: %d %s %s\n", id, name, phone);
+			//printf("Loading failed: %d %s %s\n", id, name, phone);
 		}
 	}
 	fclose(file);
