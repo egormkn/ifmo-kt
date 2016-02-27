@@ -219,7 +219,6 @@ int main(int argc, char **argv){
 	
 	while(1){
 		scanf("%s", cmd);
-		printf("> %s\n", cmd);
 		if (!strcmp(cmd, "find")){
 			input = getword(stdin, 2);
 			if (check(input, 2)){
