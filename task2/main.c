@@ -71,17 +71,6 @@ void writeToFile(){
 	fclose(file);
 }
 
-char *makeNeutral(char *input){
-    int i = 0;
-    char *answer = malloc(strlen(input)*sizeof(char)); // FIXME
-    while(input[i] != '\0'){
-        answer[i] = tolower(input[i]);
-        i++;
-    }
-    answer[i] = '\0';
-    return answer;
-}
-
 int issubstr(char *s1, char *s2){
 	int i = 0;
     char *a1 = malloc(strlen(s1)*sizeof(char)); // FIXME
@@ -169,7 +158,7 @@ void create(FILE *file, int id){
 	char *name = getword(file, 0);
 	char *phone = getword(file, 1);
 	if (name != NULL && phone != NULL){
-		printf("Loaded: %d %s %s\n", id, name, phone);
+		// printf("Loaded: %d %s %s\n", id, name, phone);
 		if (id > lastId){
 			lastId = id;
 		}
