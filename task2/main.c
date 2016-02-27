@@ -15,11 +15,11 @@ typedef struct {
 } Contactbook;
 
 Contactbook book;
-FILE *file;
+char *filename;
 int id = 0, temp;
 
-void writeToFile(const char *filename){
-	file = fopen(filename, "wt");
+void writeToFile(){
+	FILE file = fopen(filename, "wt");
 	for(int i = 0; i < book.length; i++){
 		fprintf(file, "%d %s %s\n", book.contacts[i].id, book.contacts[i].name, book.contacts[i].phone);
 	}
@@ -100,7 +100,7 @@ void delete(int i){
 	book.contacts[i].name = book.contacts[book.length].name;
 	book.contacts[i].phone = book.contacts[book.length].phone;
 	book.contacts = (Contact*) realloc(book.contacts, (book.length + 1) * sizeof(Contact));
-	// TODO: FILE UPDATE
+	writeToFile();
 }
 
 void change(int i, char *cmd, char *value){
@@ -115,6 +115,7 @@ void change(int i, char *cmd, char *value){
     } else {
         printf ("Unknown command.\n");
     }
+    writeToFile();
 }
 
 void add(int mode, int id, char *name, char *phone){
@@ -123,7 +124,7 @@ void add(int mode, int id, char *name, char *phone){
 	book.contacts[book.length].name = name;
 	book.contacts[book.length].phone = phone;
 	book.length++;
-	// TODO: FILE UPDATE
+	writeToFile();
 }
 
 int validate(char c, int mode){ // 0 - буквы, 1 - цифры
@@ -157,7 +158,8 @@ char *getword(FILE *input, int mode){
 }
 
 int main(int argc, char **argv){
-	file = fopen(argv[1], "at+");
+	filename = argv[1];
+	FILE file = fopen(filename, "at+");
 	if(file == NULL){
 		printf("Failed to open file\n");
 		return 0;
@@ -165,7 +167,7 @@ int main(int argc, char **argv){
 	rewind(file);
 	book.length = 0;
 	book.contacts = NULL;
-	char *name = NULL, *phone = NULL, *input = NULL, cmd[7]; /// ????
+	char *name = NULL, *phone = NULL, *input = NULL, cmd[7];
 	while(!feof(file)){
 		fscanf(file, "%d", &id);
 		name = getword(file, 0);
