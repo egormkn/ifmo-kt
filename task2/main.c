@@ -73,15 +73,14 @@ void writeToFile(){
 
 int issubstr(char *s1, char *s2){
 	int i = 0;
-    char *a1 = malloc(strlen(s1)*sizeof(char)); // FIXME
+    char *a1 = malloc(strlen(s1)*sizeof(char));
     while(s1[i] != '\0'){
         a1[i] = tolower(s1[i]);
         i++;
     }
     a1[i] = '\0';
-    
 	i = 0;
-    char *a2 = malloc(strlen(s2)*sizeof(char)); // FIXME
+    char *a2 = malloc(strlen(s2)*sizeof(char));
     while(s2[i] != '\0'){
         a2[i] = tolower(s2[i]);
         i++;
