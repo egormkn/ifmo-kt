@@ -1,3 +1,5 @@
+#include "rational.h"
+
 rational::rational(int num) {
 	rational::n = num;
 	rational::d = 1;
