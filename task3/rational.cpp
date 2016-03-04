@@ -45,7 +45,7 @@ rational rational::operator /(rational const &a) const {
 	return rational(num, denom);
 }
 	
-~rational() {
+rational::~rational() {
     // Bye bye
 }
 
