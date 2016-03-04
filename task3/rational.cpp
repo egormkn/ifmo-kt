@@ -19,27 +19,27 @@ int rational::getDenom() const {
 	return rational::d;
 }
 	
-rational operator +(rational::rational const &a) const {
+rational rational::operator +(rational const &a) const {
 	int nok = rational::d * a.d / gcd(rational::d, a.d);
 	int num = rational::n * (nok / rational::d) + a.n * (nok / a.d), denom = nok;
 	simplify(num, denom);
 	return rational(num, denom);
 }
 	
-rational operator -(rational::rational const &a) const {
+rational rational::operator -(rational const &a) const {
 	int nok = d * a.d / gcd(d, a.d);
 	int num = n * (nok / d) - a.n * (nok / a.d), denom = nok;
 	simplify(num, denom);
 	return rational(num, denom);
 }
 	
-rational operator *(rational::rational const &a) const {
+rational rational::operator *(rational const &a) const {
 	int num = n * a.n, denom = d * a.d;
 	simplify(num, denom);
 	return rational(num, denom);
 }
 	
-rational operator /(rational::rational const &a) const {
+rational rational::operator /(rational const &a) const {
 	int num = n * a.d, denom = d * a.n;
 	simplify(num, denom);
 	return rational(num, denom);
