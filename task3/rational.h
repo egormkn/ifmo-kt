@@ -1,3 +1,5 @@
+#pragma once
+
 class rational {
 	public:
 		rational(int);
