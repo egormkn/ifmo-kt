@@ -49,7 +49,7 @@ int rational::gcd (int a, int b) {
 	return b ? rational::gcd (b, a % b) : a;
 }
 
-void rational::simplify(int &n, int &d){
+void rational::simplify(int &n, int &d) {
 	int g = rational::gcd(n, d);
 	while(g != 1) {
 		n = n / g;
