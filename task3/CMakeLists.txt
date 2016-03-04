@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8) #RANDOM!
 
-set(CMAKE_INSTALL_INCLUDEDIR ${CMAKE_INSTALL_PREFIX}/include)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
-set(CMAKE_INSTALL_LIBDIR ${CMAKE_INSTALL_PREFIX}/lib)
+
 add_library(rational STATIC rational.cpp)
+install (TARGETS rational DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install (FILES rational.h DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
+install (FILES rational.cpp DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
