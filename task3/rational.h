@@ -12,6 +12,4 @@ class rational {
 
     private:
         int n, d;
-		static int gcd (int, int);
-        static void simplify(int, int);
 };
