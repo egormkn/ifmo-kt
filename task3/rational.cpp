@@ -50,15 +50,15 @@ rational::~rational() {
 }
 
 
-static int rational::gcd (int a, int b) {
+int gcd (int a, int b) {
 	return b ? gcd (b, a % b) : a;
 }
 
-static void rational::simplify(int &n, int &d){
+void simplify(int &n, int &d){
 	int g = gcd(n, d);
 	while(g != 1) {
 		n = n / g;
 		d = d / g;
-		g = rational::gcd(n, d);
+		g = gcd(n, d);
 	}
 }
