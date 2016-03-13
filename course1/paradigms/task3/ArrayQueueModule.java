@@ -1,4 +1,5 @@
-// INV: head < tail: elements[head]..elements[tail] - queue
+// INV: FIFO
+//      head < tail: elements[head]..elements[tail] - queue
 //      head >= tail: elements[head]..elements[size()-1],
 //                    elements[0]..elements[tail] - queue
 public class ArrayQueueModule {
@@ -9,6 +10,7 @@ public class ArrayQueueModule {
     // PRE:  size = new size of array
     // POST: elements.length > size
     //       elements.length < 4 * size
+    //       queue - immutable
     private static void ensureCapacity(int size) {
         if (size == elements.length || (size > 3 && size == elements.length / 4)) {
             Object[] newElements;
@@ -30,9 +32,9 @@ public class ArrayQueueModule {
     }
 
     // PRE: None
-    // POST: elements[tail-1] = element     (last element of queue = element)
-    //       tail = (tail + 1) % elements.length;
-    public static void enqueue(Object element) { // добавить элемент в очередь
+    // POST: last element of queue = element,
+    //           previous elements are immutable
+    public static void enqueue(Object element) {
         ensureCapacity(size() + 1);
         elements[tail] = element;
 
@@ -41,16 +43,17 @@ public class ArrayQueueModule {
 
     // PRE: !isEmpty
     // POST: queue - immutable
-    //       R = elements[head]  (first element of queue)
-    public static Object element() { // первый элемент в очереди
+    //       R = first element of queue
+    public static Object element() {
         assert !isEmpty();
 
         return elements[head];
     }
 
     // PRE:  !isEmpty
-    // POST: R = elements[head]     (first element of queue)
-    //       head = (head + 1) % elements.length;
+    // POST: R = first element of queue
+    //       first element of queue = next element
+    //       other elements are immutable
     public static Object dequeue() {
         assert !isEmpty();
         ensureCapacity(size() - 1);
@@ -63,16 +66,16 @@ public class ArrayQueueModule {
 
     // PRE: None
     // POST: queue - immutable
-    //       R = size
-    public static int size() { // текущий размер очереди
+    //       R = size of queue
+    public static int size() {
         return tail - head + (head > tail ? elements.length : 0);
     }
 
     // PRE: None
     // POST: queue - immutable
-    //       R = (head == tail)
-    public static boolean isEmpty() { // является ли очередь пустой
-        return head == tail;
+    //       R = (size() == 0)
+    public static boolean isEmpty() {
+        return size() == 0;
     }
 
     // PRE: None
@@ -85,6 +88,7 @@ public class ArrayQueueModule {
 
     // PRE: None
     // POST: R = queue
+    //           queue - immutable
     public static Object[] toArray() {
         Object array[] = new Object[size()];
         for (int i = 0; i < array.length; i++) {
@@ -94,7 +98,8 @@ public class ArrayQueueModule {
     }
 
     // PRE:  None
-    // POST: elements[head] = element (first element of queue = element)
+    // POST: first element of queue = element
+    //           other elements are immutable
     public static void push(Object element) {
         ensureCapacity(size() + 1);
         head = head == 0 ? elements.length - 1 : head - 1;
@@ -102,14 +107,17 @@ public class ArrayQueueModule {
     }
 
     // PRE:  !isEmpty
-    // POST: R = elements[tail - 1] (last element of queue)
+    // POST: R = last element of queue
+    //           queue - immutable
     public static Object peek() {
         assert !isEmpty();
         return elements[tail == 0 ? elements.length - 1 : tail - 1];
     }
 
     // PRE:  !isEmpty
-    // POST: R = elements[tail] (last element of queue)
+    // POST: R = last element of queue
+    //           last element of queue = previous element
+    //           other elements are immutable
     public static Object remove() {
         assert !isEmpty();
         ensureCapacity(size() - 1);
