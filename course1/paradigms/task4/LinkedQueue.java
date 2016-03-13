@@ -36,11 +36,23 @@ public class LinkedQueue extends AbstractQueue {
         return size;
     }
 
-    // public Object[] toArray();
+    public void push(Object element) {
+        // Not implemented
+    }
 
-    // public void push(Object element);
+    public Object peek() {
+        assert !isEmpty();
+        // Not implemented
+        return null;
+    }
 
-    // public Object peek();
+    public Object remove() {
+        assert !isEmpty();
+        // Not implemented
+        return null;
+    }
 
-    // public Object remove();
+    protected Queue sameTypeQueue() {
+        return new LinkedQueue();
+    }
 }
