@@ -1,5 +1,5 @@
 // INV: FIFO
-//      head < tail: elements[head]..elements[tail] - queue
+//      head < tail:  elements[head]..elements[tail] - queue
 //      head >= tail: elements[head]..elements[size()-1],
 //                    elements[0]..elements[tail] - queue
 public class ArrayQueueADT {
@@ -31,9 +31,9 @@ public class ArrayQueueADT {
         }
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: last element of queue = element,
-    //           previous elements are immutable
+    //       previous elements are immutable
     public static void enqueue(ArrayQueueADT queue, Object element) {
         ensureCapacity(queue, size(queue) + 1);
         queue.elements[queue.tail] = element;
@@ -41,7 +41,7 @@ public class ArrayQueueADT {
         queue.tail = (queue.tail + 1) % queue.elements.length;
     }
 
-    // PRE: !isEmpty
+    // PRE:  !isEmpty
     // POST: queue - immutable
     //       R = first element of queue
     public static Object element(ArrayQueueADT queue) {
@@ -64,21 +64,21 @@ public class ArrayQueueADT {
         return r;
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: queue - immutable
     //       R = size of queue
     public static int size(ArrayQueueADT queue) {
         return queue.tail - queue.head + (queue.head > queue.tail ? queue.elements.length : 0);
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: queue - immutable
     //       R = (size() == 0)
     public static boolean isEmpty(ArrayQueueADT queue) {
         return size(queue) == 0;
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: isEmpty
     public static void clear(ArrayQueueADT queue) {
         while (!isEmpty(queue)) {
@@ -86,9 +86,10 @@ public class ArrayQueueADT {
         }
     }
 
-    // PRE: None
-    // POST: R = queue
-    //           queue - immutable
+    // PRE:  None
+    // POST: R = array of queue elements
+    //       from first to last element
+    //       queue - immutable
     public static Object[] toArray(ArrayQueueADT queue) {
         Object array[] = new Object[size(queue)];
         for (int i = 0; i < array.length; i++) {
@@ -99,7 +100,7 @@ public class ArrayQueueADT {
 
     // PRE:  None
     // POST: first element of queue = element
-    //           other elements are immutable
+    //       other elements are immutable
     public static void push(ArrayQueueADT queue, Object element) {
         ensureCapacity(queue, size(queue) + 1);
         queue.head = queue.head == 0 ? queue.elements.length - 1 : queue.head - 1;
@@ -108,7 +109,7 @@ public class ArrayQueueADT {
 
     // PRE:  !isEmpty
     // POST: R = last element of queue
-    //           queue - immutable
+    //       queue - immutable
     public static Object peek(ArrayQueueADT queue) {
         assert !isEmpty(queue);
         return queue.elements[queue.tail == 0 ? queue.elements.length - 1 : queue.tail - 1];
@@ -116,8 +117,8 @@ public class ArrayQueueADT {
 
     // PRE:  !isEmpty
     // POST: R = last element of queue
-    //           last element of queue = previous element
-    //           other elements are immutable
+    //       last element of queue = previous element
+    //       other elements are immutable
     public static Object remove(ArrayQueueADT queue) {
         assert !isEmpty(queue);
         ensureCapacity(queue, size(queue) - 1);

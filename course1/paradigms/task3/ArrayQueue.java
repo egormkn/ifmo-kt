@@ -1,5 +1,5 @@
 // INV: FIFO
-//      head < tail: elements[head]..elements[tail] - queue
+//      head < tail:  elements[head]..elements[tail] - queue
 //      head >= tail: elements[head]..elements[size()-1],
 //                    elements[0]..elements[tail] - queue
 public class ArrayQueue {
@@ -31,9 +31,9 @@ public class ArrayQueue {
         }
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: last element of queue = element,
-    //           previous elements are immutable
+    //       previous elements are immutable
     public void enqueue(Object element) {
         ensureCapacity(size() + 1);
         elements[tail] = element;
@@ -41,7 +41,7 @@ public class ArrayQueue {
         tail = (tail + 1) % elements.length;
     }
 
-    // PRE: !isEmpty
+    // PRE:  !isEmpty
     // POST: queue - immutable
     //       R = first element of queue
     public Object element() {
@@ -64,21 +64,21 @@ public class ArrayQueue {
         return r;
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: queue - immutable
     //       R = size of queue
     public int size() {
         return tail - head + (head > tail ? elements.length : 0);
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: queue - immutable
     //       R = (size() == 0)
     public boolean isEmpty() {
         return size() == 0;
     }
 
-    // PRE: None
+    // PRE:  None
     // POST: isEmpty
     public void clear() {
         while (!isEmpty()) {
@@ -86,9 +86,10 @@ public class ArrayQueue {
         }
     }
 
-    // PRE: None
-    // POST: R = queue
-    //           queue - immutable
+    // PRE:  None
+    // POST: R = array of queue elements
+    //       from first to last element
+    //       queue - immutable
     public Object[] toArray() {
         Object array[] = new Object[size()];
         for (int i = 0; i < array.length; i++) {
@@ -99,7 +100,7 @@ public class ArrayQueue {
 
     // PRE:  None
     // POST: first element of queue = element
-    //           other elements are immutable
+    //       other elements are immutable
     public void push(Object element) {
         ensureCapacity(size() + 1);
         head = head == 0 ? elements.length - 1 : head - 1;
@@ -108,7 +109,7 @@ public class ArrayQueue {
 
     // PRE:  !isEmpty
     // POST: R = last element of queue
-    //           queue - immutable
+    //       queue - immutable
     public Object peek() {
         assert !isEmpty();
         return elements[tail == 0 ? elements.length - 1 : tail - 1];
@@ -116,8 +117,8 @@ public class ArrayQueue {
 
     // PRE:  !isEmpty
     // POST: R = last element of queue
-    //           last element of queue = previous element
-    //           other elements are immutable
+    //       last element of queue = previous element
+    //       other elements are immutable
     public Object remove() {
         assert !isEmpty();
         ensureCapacity(size() - 1);
