@@ -3,6 +3,10 @@ public class ArrayQueue extends AbstractQueue {
     private int tail = 0;
     private Object[] elements = new Object[16];
 
+    // PRE:  size > 0
+    // POST: elements.length > size
+    //       elements.length < 4 * size
+    //       queue - immutable
     private void ensureCapacity(int size) {
         if (size == elements.length || (size > 3 && size == elements.length / 4)) {
             Object[] newElements = new Object[size == elements.length ? elements.length * 2 : elements.length / 2];
@@ -25,14 +29,10 @@ public class ArrayQueue extends AbstractQueue {
     }
 
     public Object element() {
-        assert !isEmpty();
-
         return elements[head];
     }
 
     public Object dequeue() {
-        assert !isEmpty();
-
         ensureCapacity(size() - 1);
         Object r = elements[head];
         elements[head] = null;
@@ -51,14 +51,10 @@ public class ArrayQueue extends AbstractQueue {
     }
 
     public Object peek() {
-        assert !isEmpty();
-
         return elements[tail == 0 ? elements.length - 1 : tail - 1];
     }
 
     public Object remove() {
-        assert !isEmpty();
-
         ensureCapacity(size() - 1);
         tail = tail == 0 ? elements.length - 1 : tail - 1;
         Object r = elements[tail];

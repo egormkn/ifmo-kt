@@ -17,14 +17,10 @@ public class LinkedQueue extends AbstractQueue {
     }
 
     public Object element() {
-        assert !isEmpty();
-
         return head.value;
     }
 
     public Object dequeue() {
-        assert !isEmpty();
-
         Node n = head;
         // head.next.prev = null;
         head = head.next;

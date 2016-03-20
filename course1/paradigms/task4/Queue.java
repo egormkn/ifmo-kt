@@ -2,70 +2,75 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 // INV: FIFO (First in - first out)
+//      queue[head]..queue[tail] - queue
 public interface Queue extends Copiable {
 
     // PRE:  None
-    // POST: last element of queue = element,
-    //       previous elements are immutable
-    //       size++
+    // POST: queue[tail] = element,
+    //       queue[head]..queue[tail-1] - immutable
+    //       size' = size + 1
     void enqueue(Object element);
 
     // PRE:  !isEmpty
     // POST: queue - immutable
-    //       R = first element of queue
+    //       R = queue[head]
     Object element();
 
     // PRE:  !isEmpty
-    // POST: R = first element of queue
-    //       first element of queue = next element
-    //       other elements are immutable
+    // POST: R = queue[head]
+    //       queue[head] = queue[head+1]
+    //       size' = size - 1
+    //       queue[head+1]..queue[tail] - immutable
     Object dequeue();
 
     // PRE:  None
     // POST: queue - immutable
-    //       R = size of queue
+    //       R = size
     int size();
 
     // PRE:  None
     // POST: queue - immutable
-    //       R = (size() == 0)
+    //       R = (size == 0)
     boolean isEmpty();
 
     // PRE:  None
-    // POST: isEmpty
+    // POST: size == 0
     void clear();
 
     // PRE:  None
-    // POST: R = array of queue elements
-    //       from first to last element
+    // POST: Array[size]
+    //       0 <= i < size: Array[i] = queue[head + i]
+    //       R = Array
     //       queue - immutable
     Object[] toArray();
 
     // PRE:  None
-    // POST: first element of queue = element
-    //       other elements are immutable
+    // POST: queue[head] = element
+    //       queue[head + 1]..queue[tail] - immutable
     void push(Object element);
 
-    // PRE:  !isEmpty
-    // POST: R = last element of queue
+    // PRE:  size != 0
+    // POST: R = queue[tail]
     //       queue - immutable
     Object peek();
 
-    // PRE:  !isEmpty
-    // POST: R = last element of queue
-    //       last element of queue = previous element
-    //       other elements are immutable
+    // PRE:  size != 0
+    // POST: queue[tail] = queue[tail - 1]
+    //       queue[head]..queue[tail - 1] - immutable
+    //       R = queue[tail]
     Object remove();
 
-    // PRE:  predicate != null;
+    // PRE:  predicate != null
     // POST: queue - immutable
-    //       R = new queue with elements filtered by predicate
+    //       newQueue = queue:
+    //           head <= i <= tail: predicate(queue[i]) == true
+    //       R = newQueue
     Queue filter(Predicate<Object> predicate);
 
-    // PRE:  function != null;
+    // PRE:  function != null
     // POST: queue - immutable
-    //       R = new queue of elements gotten by
-    //       performing a function on elements of
-    //       current queue
+    //       newQueue = queue:
+    //           head <= i <= tail: newQueue[i] = function(queue[i])
+    //       R = newQueue
     Queue map(Function<Object, Object> function);
 }

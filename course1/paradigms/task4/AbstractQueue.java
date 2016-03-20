@@ -2,7 +2,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class AbstractQueue implements Queue {
-
     public final void clear() {
         while (!isEmpty()) {
             dequeue();
@@ -16,9 +15,8 @@ public abstract class AbstractQueue implements Queue {
     public final Object[] toArray() {
         Object[] array = new Object[size()];
         for (int i = 0; i < size(); i++) {
-            Object temp = dequeue();
-            array[i] = temp;
-            enqueue(temp);
+            array[i] = dequeue();
+            enqueue(array[i]);
         }
         return array;
     }
@@ -45,6 +43,9 @@ public abstract class AbstractQueue implements Queue {
         return queue;
     }
 
+    // PRE:
+    // POST: newQueue[i] = queue[i]
+    //       R = newQueue
     public Queue makeCopy() {
         return map(x -> x);
     }
