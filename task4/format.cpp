@@ -62,38 +62,6 @@ int main(){
     printf("%s\n", format("blah %n blah", &val).c_str());
     printf("%s\n", format("val = %d\n", val).c_str());
 
-    /*printf("%s\n", format("%-*.*wd test", 10).c_str());
-
-
-
-    printf("Need: %");
-    printf("\n");
-    printf("Got:  %s\n", format("%").c_str());
-    
-    printf("NEED: %%");
-    printf("\n");
-    printf("GOT:  %s\n", format("%%").c_str());
-    
-    printf("Need: %%%");
-    printf("\n");
-    printf("Got:  %s\n", format("%%%").c_str());
-    
-    printf("NEED: %%%%");
-    printf("\n");
-    printf("GOT:  %s\n", format("%%%%").c_str());
-    
-    printf("NEED: test");
-    printf("\n");
-    printf("GOT:  %s\n", format("test").c_str());
-
-    printf("Need: %test");
-    printf("\n");
-    printf("Got:  %s\n", format("%test").c_str());
-    
-    printf("Need: %d");
-    printf("\n");
-    printf("Got:  %s\n", format("%d").c_str());
-*/
     char zz[] = "foo%% test %% %%%% %i";
     printf("Need: ");
     printf(zz, 100);

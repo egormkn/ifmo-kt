@@ -164,8 +164,12 @@ template<typename First, typename... Rest> std::string format(const std::string 
 
     intmax_t d;
     uintmax_t u;
-    std::string s;
     void* p;
+    long double f;
+    wint_t c;
+    
+    std::string s;
+    
 
     char buffer[1024];
 
@@ -356,65 +360,238 @@ template<typename First, typename... Rest> std::string format(const std::string 
         case 'F':
             uppercase = true;
         case 'f': // TODO f
-            result.append("(DECIMAL FLOAT)");
-            break;
+            switch (length){
+                case len_l:
+                case len_default:
+                    f = convert<double>(value);
+                    break;
+                case len_L:
+                    f = convert<long double>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			if(uppercase){
+				temp.append("LF");
+			} else {
+				temp.append("Lf");
+			}
+			snprintf(buffer, 1024, temp.c_str(), f);
+			result.append(buffer);
+			break;
         case 'E':
             uppercase = true;
         case 'e': // TODO e
-            result.append("(SCIENTIFIC)");
-            break;
+            switch (length){
+                case len_l:
+                case len_default:
+                    f = convert<double>(value);
+                    break;
+                case len_L:
+                    f = convert<long double>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			if(uppercase){
+				temp.append("LE");
+			} else {
+				temp.append("Le");
+			}
+			snprintf(buffer, 1024, temp.c_str(), f);
+			result.append(buffer);
+			break;
         case 'G':
             uppercase = true;
         case 'g': // TODO g
-            result.append("(%E or %F)");
-            break;
+            switch (length){
+                case len_l:
+                case len_default:
+                    f = convert<double>(value);
+                    break;
+                case len_L:
+                    f = convert<long double>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			if(uppercase){
+				temp.append("LG");
+			} else {
+				temp.append("Lg");
+			}
+			snprintf(buffer, 1024, temp.c_str(), f);
+			result.append(buffer);
+			break;
         case 'A':
             uppercase = true;
         case 'a': // TODO a
-            result.append("(HEX FLOAT)");
-            break;
+            switch (length){
+                case len_l:
+                case len_default:
+                    f = convert<double>(value);
+                    break;
+                case len_L:
+                    f = convert<long double>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			if(uppercase){
+				temp.append("LA");
+			} else {
+				temp.append("La");
+			}
+			snprintf(buffer, 1024, temp.c_str(), f);
+			result.append(buffer);
+			break;
         case 'c': // TODO c
-            result.append("(char)");
-            break;
+            switch (length){
+                case len_l:
+                    c = convert<wint_t>(value);
+                    break;
+                case len_default:
+                    c = convert<int>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			temp.append("c");
+			snprintf(buffer, 1024, temp.c_str(), c);
+			result.append(buffer);
+			break;
         case 's': // TODO s
-            s = convert<std::string>(value);
-            result.append(s);
+            /*switch (length){
+                case len_l:
+                    //s = convert<wchar_t*>(value);
+                    s = convert<char*>(value);
+                    break;
+                case len_default:
+                    s = (char*)value;
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+			printf(s.c_str());
+			result.append(s);
+            /*temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			temp.append("s");
+			snprintf(buffer, 1024, temp.c_str(), s.c_str());
+			result.append(buffer);
+			break;*/
+            s = convert<std::string>(value); 
+            result.append(s); 
             break;
         case 'p': // TODO p
             p = convert<void*>(value);
-            if(p == NULL){
-
+            if(length != len_default){
+                throw std::invalid_argument("Unsupported length specifier");
 			}
-            result.append("(pointer)");
-            break;
-            
-			//enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error} length = len_default;
-    
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			temp.append("p");
+			snprintf(buffer, 1024, temp.c_str(), p);
+			result.append(buffer);
+			break;
         case 'n':
             switch (length){
                 case len_hh:
-                    *(safetype<signed char*>(value)) = chars_printed;
+                    *(safetype<signed char*>(value)) = chars_printed + result.length();
                     break;
                 case len_h:
-                    *(safetype<short int*>(value)) = chars_printed;
+                    *(safetype<short int*>(value)) = chars_printed + result.length();
                     break;
                 case len_l:
-                    *(safetype<long int*>(value)) = chars_printed;
+                    *(safetype<long int*>(value)) = chars_printed + result.length();
                     break;
                 case len_ll:
-                    *(safetype<long long int*>(value)) = chars_printed;
+                    *(safetype<long long int*>(value)) = chars_printed + result.length();
                     break;
                 case len_j:
-                    *(safetype<intmax_t*>(value)) = chars_printed;
+                    *(safetype<intmax_t*>(value)) = chars_printed + result.length();
                     break;
                 case len_z:
-                    *(safetype<size_t*>(value)) = chars_printed;
+                    *(safetype<size_t*>(value)) = chars_printed + result.length();
                     break;
                 case len_t:
-                    *(safetype<ptrdiff_t*>(value)) = chars_printed;
+                    *(safetype<ptrdiff_t*>(value)) = chars_printed + result.length();
                     break;
                 case len_default:
-                    *(safetype<int*>(value)) = chars_printed;
+                    *(safetype<int*>(value)) = chars_printed + result.length();
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
