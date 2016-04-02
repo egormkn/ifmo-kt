@@ -52,7 +52,7 @@ string format(const string &fmt){
 
 
 
-
+#ifdef TEST
 int main(){
 	try {
         printf("%s\n", format("test", 10).c_str());
@@ -120,3 +120,4 @@ int main(){
     
     return 0;
 }
+#endif
