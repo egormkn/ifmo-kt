@@ -15,6 +15,14 @@ template<typename To, typename From> typename std::enable_if<!std::is_convertibl
     throw std::invalid_argument("Invalid argument type");
 }
 
+template<typename Need, typename Got> typename std::enable_if<std::is_same<Need, Got>::value, Need>::type safetype(Got value){
+    return (Need) value;
+}
+
+template<typename Need, typename Got> typename std::enable_if<!std::is_same<Need, Got>::value, Need>::type safetype(Got value){
+    throw std::invalid_argument("Invalid argument type");
+}
+
 template<typename First, typename... Rest> std::string format(const std::string &fmt, First value, Rest... args){
     unsigned pos = 0;
     std::string result = find_spec(fmt, pos, true);
@@ -23,6 +31,8 @@ template<typename First, typename... Rest> std::string format(const std::string 
     bool space_or_sign = false;
     bool force_num_format = false;
     bool left_pad = false;
+    bool uppercase = false;
+    if(uppercase){uppercase=true;}
     int width = 0;
     int precision = -1; /// Ignored if negative
     enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error} length = len_default;
@@ -95,7 +105,9 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(!temp.empty()){
 			    precision = stoi(temp);
 		        temp = "";
-		    }
+		    } else {
+                precision = 0;
+			}
 	    }
     }
 
@@ -130,73 +142,283 @@ template<typename First, typename... Rest> std::string format(const std::string 
         throw std::invalid_argument("Сonversion lacks type at end of format");
     }
 
-    int d;
+
+    /*
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     *
+     */
+
+    intmax_t d;
+    uintmax_t u;
     std::string s;
     void* p;
+
+    char buffer[1024];
+
     switch(fmt[pos++]){
         case 'd':
         case 'i':
-            d = convert<int>(value);
-            if(force_sign || space_or_sign){
-                result.push_back(d < 0 ? '-' : (space_or_sign ? ' ' : '+'));
-            }
-            d = abs(d);
-            if(left_justify){
-                //b
-            }
-            result.append(std::to_string(d));
+            switch (length){
+                case len_hh:
+                    d = convert<signed char>(value);
+                    break;
+                case len_h:
+                    d = convert<short int>(value);
+                    break;
+                case len_l:
+                    d = convert<long int>(value);
+                    break;
+                case len_ll:
+                    d = convert<long long int>(value);
+                    break;
+                case len_j:
+                    d = convert<intmax_t>(value);
+                    break;
+                case len_z:
+                    d = convert<size_t>(value);
+                    break;
+                case len_t:
+                    d = convert<ptrdiff_t>(value);
+                    break;
+                case len_default:
+                    d = convert<int>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME d
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			temp.append("jd");
+			snprintf(buffer, 1024, temp.c_str(), d);
+			result.append(buffer);
             break;
         case 'u':
-            result.append(std::to_string(convert<unsigned>(value)));
-            break;
-        case 'o':
-            result.append("(unsigned octal)");
-            break;
-        case 'x':
-            result.append("(unsigned hex)");
-            break;
+            switch (length){
+                case len_hh:
+                    u = convert<unsigned char>(value);
+                    break;
+                case len_h:
+                    u = convert<unsigned short int>(value);
+                    break;
+                case len_l:
+                    u = convert<unsigned long int>(value);
+                    break;
+                case len_ll:
+                    u = convert<unsigned long long int>(value);
+                    break;
+                case len_j:
+                    u = convert<uintmax_t>(value);
+                    break;
+                case len_z:
+                    u = convert<size_t>(value);
+                    break;
+                case len_t:
+                    u = convert<ptrdiff_t>(value);
+                    break;
+                case len_default:
+                    u = convert<unsigned int>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			temp.append("ju");
+			snprintf(buffer, 1024, temp.c_str(), u);
+			result.append(buffer);
+			break;
+        case 'o': // TODO o
+            switch (length){
+                case len_hh:
+                    u = convert<unsigned char>(value);
+                    break;
+                case len_h:
+                    u = convert<unsigned short int>(value);
+                    break;
+                case len_l:
+                    u = convert<unsigned long int>(value);
+                    break;
+                case len_ll:
+                    u = convert<unsigned long long int>(value);
+                    break;
+                case len_j:
+                    u = convert<uintmax_t>(value);
+                    break;
+                case len_z:
+                    u = convert<size_t>(value);
+                    break;
+                case len_t:
+                    u = convert<ptrdiff_t>(value);
+                    break;
+                case len_default:
+                    u = convert<unsigned int>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			temp.append("jo");
+			snprintf(buffer, 1024, temp.c_str(), u);
+			result.append(buffer);
+			break;
         case 'X':
-            result.append("(UNSIGNED HEX)");
-            break;
-        case 'f':
-            result.append("(decimal float)");
-            break;
+            uppercase = true;
+        case 'x': // TODO x
+            switch (length){
+                case len_hh:
+                    u = convert<unsigned char>(value);
+                    break;
+                case len_h:
+                    u = convert<unsigned short int>(value);
+                    break;
+                case len_l:
+                    u = convert<unsigned long int>(value);
+                    break;
+                case len_ll:
+                    u = convert<unsigned long long int>(value);
+                    break;
+                case len_j:
+                    u = convert<uintmax_t>(value);
+                    break;
+                case len_z:
+                    u = convert<size_t>(value);
+                    break;
+                case len_t:
+                    u = convert<ptrdiff_t>(value);
+                    break;
+                case len_default:
+                    u = convert<unsigned int>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+            temp = "%"; /// FIXME
+            if(force_sign){temp.push_back('+');}
+            if(left_justify){temp.push_back('-');}
+            if(space_or_sign){temp.push_back(' ');}
+            if(force_num_format){temp.push_back('#');}
+            if(left_pad){temp.push_back('0');}
+            if(width != 0){temp.append(std::to_string(width));}
+            if(precision >= 0){
+				temp.push_back('.');
+                temp.append(std::to_string(precision));
+			}
+			if(uppercase){
+				temp.append("jX");
+			} else {
+				temp.append("jx");
+			}
+			snprintf(buffer, 1024, temp.c_str(), u);
+			result.append(buffer);
+			break;
         case 'F':
+            uppercase = true;
+        case 'f': // TODO f
             result.append("(DECIMAL FLOAT)");
             break;
-        case 'e':
-            result.append("(scientific)");
-            break;
         case 'E':
+            uppercase = true;
+        case 'e': // TODO e
             result.append("(SCIENTIFIC)");
             break;
-        case 'g':
-            result.append("(%e or %f)");
-            break;
         case 'G':
+            uppercase = true;
+        case 'g': // TODO g
             result.append("(%E or %F)");
             break;
-        case 'a':
-            result.append("(hex float)");
-            break;
         case 'A':
+            uppercase = true;
+        case 'a': // TODO a
             result.append("(HEX FLOAT)");
             break;
-        case 'c':
+        case 'c': // TODO c
             result.append("(char)");
             break;
-        case 's':
+        case 's': // TODO s
             s = convert<std::string>(value);
             result.append(s);
             break;
-        case 'p':
+        case 'p': // TODO p
             p = convert<void*>(value);
             if(p == NULL){
 
 			}
             result.append("(pointer)");
             break;
+            
+			//enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error} length = len_default;
+    
         case 'n':
+            switch (length){
+                case len_hh:
+                    *(safetype<signed char*>(value)) = chars_printed;
+                    break;
+                case len_h:
+                    *(safetype<short int*>(value)) = chars_printed;
+                    break;
+                case len_l:
+                    *(safetype<long int*>(value)) = chars_printed;
+                    break;
+                case len_ll:
+                    *(safetype<long long int*>(value)) = chars_printed;
+                    break;
+                case len_j:
+                    *(safetype<intmax_t*>(value)) = chars_printed;
+                    break;
+                case len_z:
+                    *(safetype<size_t*>(value)) = chars_printed;
+                    break;
+                case len_t:
+                    *(safetype<ptrdiff_t*>(value)) = chars_printed;
+                    break;
+                case len_default:
+                    *(safetype<int*>(value)) = chars_printed;
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
             break;
         default:
             throw std::invalid_argument("Unknown format");

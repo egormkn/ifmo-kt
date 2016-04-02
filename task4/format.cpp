@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <cctype>
 #include <climits>
+#include <cstddef>
+#include <algorithm>
 #include "format.h"
 
 std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
@@ -40,8 +42,6 @@ std::string format(const std::string &fmt){
     chars_printed = 0;
     return result;
 }
-
-
 
 
 #ifndef RELEASE
@@ -109,7 +109,6 @@ int main(){
     printf("%s\n", format("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416).c_str());
     printf("%s\n", format("Width trick: %*.*d \n", 5, 5, 10).c_str());
     printf("%s\n", format("%s \n", "A string").c_str());
-
     
     return 0;
 }
