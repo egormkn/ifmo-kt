@@ -4,7 +4,6 @@
 static unsigned chars_printed = 0;
 
 std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments);
-
 std::string format(const std::string &fmt);
 
 template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
