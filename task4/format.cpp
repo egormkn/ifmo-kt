@@ -2,25 +2,23 @@
 #include <stdexcept>
 #include <cctype>
 #include <climits>
-#include "format.hpp"
+#include "format.h"
 
-using namespace std;
-
-string find_spec(const string &fmt, unsigned &pos, bool has_arguments){
-    string result = "";
+std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
+    std::string result = "";
     while(pos < fmt.length()){
         for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
         if(pos == fmt.length()){
             chars_printed = 0;
             if(has_arguments){
-                throw invalid_argument("Too many arguments for format");
+                throw std::invalid_argument("Too many arguments for format");
 			} else {
                 return result;
 			}
         }
         if(pos == fmt.length() - 1){
             chars_printed = 0;
-            throw invalid_argument("Spurious trailing '%%' in format");
+            throw std::invalid_argument("Spurious trailing '%%' in format");
         }
         if(fmt[pos + 1] == '%'){
             result.push_back('%');
@@ -28,7 +26,7 @@ string find_spec(const string &fmt, unsigned &pos, bool has_arguments){
         } else {
             pos++;
             if(!has_arguments){
-                throw invalid_argument("Need more arguments or unknown format");
+                throw std::out_of_range("Need more arguments or unknown format");
 	        }
 	        break;
         }
@@ -36,9 +34,9 @@ string find_spec(const string &fmt, unsigned &pos, bool has_arguments){
     return result;
 }
 
-string format(const string &fmt){
+std::string format(const std::string &fmt){
     unsigned pos = 0;
-    string result = find_spec(fmt, pos, false);
+    std::string result = find_spec(fmt, pos, false);
     chars_printed = 0;
     return result;
 }
@@ -46,14 +44,9 @@ string format(const string &fmt){
 
 
 
-
-
-
-
-
-
 #ifdef TEST
 int main(){
+	using namespace std;
 	try {
         printf("%s\n", format("test", 10).c_str());
     } catch (exception &e){

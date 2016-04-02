@@ -1,36 +1,32 @@
 #ifndef FORMAT_H
 #define FORMAT_H
-#pragma once
-
-using namespace std;
 
 static unsigned chars_printed = 0;
 
-string find_spec(const string &fmt, unsigned &pos, bool has_arguments);
+std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments);
 
-string format(const string &fmt);
+std::string format(const std::string &fmt);
 
-template<typename To, typename From> typename enable_if<is_convertible<From, To>::value, To>::type convert(From value){
+template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
     return (To) value;
 }
 
-template<typename To, typename From> typename enable_if<!is_convertible<From, To>::value, To>::type convert(From value){
-    throw std::invalid_argument("Illegal argument type");
+template<typename To, typename From> typename std::enable_if<!std::is_convertible<From, To>::value, To>::type convert(From value){
+    throw std::invalid_argument("Invalid argument type");
 }
 
-template<typename First, typename... Rest> string format(const string &fmt, First value, Rest... args){
+template<typename First, typename... Rest> std::string format(const std::string &fmt, First value, Rest... args){
     unsigned pos = 0;
-    string result = find_spec(fmt, pos, true);
-
-    bool force_sign = false;       /// +
-    bool left_justify = false;     /// -
-    bool space_or_sign = false;    /// space
-    bool force_num_format = false; /// #
-    bool left_pad = false;         /// 0
+    std::string result = find_spec(fmt, pos, true);
+    bool force_sign = false;
+    bool left_justify = false;
+    bool space_or_sign = false;
+    bool force_num_format = false;
+    bool left_pad = false;
     int width = 0;
-    int precision = -1;            /// Ignored if negative
+    int precision = -1; /// Ignored if negative
     enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error} length = len_default;
-    string temp = "";
+    std::string temp = "";
 
     while(pos < fmt.length() && (fmt[pos] == '-' || fmt[pos] == '+' || fmt[pos] == ' ' || fmt[pos] == '#' || fmt[pos] == '0')){
 		switch(fmt[pos++]){
@@ -56,17 +52,16 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
 
 	if(pos < fmt.length() && fmt[pos] == '*'){
         width = convert<int>(value);
-        printf("Width = %d\n", width);
         temp = "%";
         if(force_sign){temp.push_back('+');}
         if(left_justify){temp.push_back('-');}
         if(space_or_sign){temp.push_back(' ');}
         if(force_num_format){temp.push_back('#');}
         if(left_pad){temp.push_back('0');}
-        temp.append(to_string(width));
+        temp.append(std::to_string(width));
         pos++;
         chars_printed += result.length();
-        return result + format(temp + fmt.substr(pos, string::npos), args...);
+        return result + format(temp + fmt.substr(pos, std::string::npos), args...);
 	} else {
         while(pos < fmt.length() && isdigit(fmt[pos])){
 			temp.push_back(fmt[pos++]);
@@ -81,19 +76,18 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
 		pos++;
         if(fmt[pos] == '*'){
 			precision = convert<int>(value);
-            printf("Precision = %d\n", precision);
             temp = "%";
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
             if(space_or_sign){temp.push_back(' ');}
             if(force_num_format){temp.push_back('#');}
             if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(to_string(width));}
+            if(width != 0){temp.append(std::to_string(width));}
             temp.push_back('.');
-            temp.append(to_string(precision));
+            temp.append(std::to_string(precision));
             pos++;
             chars_printed += result.length();
-            return result + format(temp + fmt.substr(pos, string::npos), args...);
+            return result + format(temp + fmt.substr(pos, std::string::npos), args...);
 	    } else {
             while(pos < fmt.length() && isdigit(fmt[pos])){
 	    		temp.push_back(fmt[pos++]);
@@ -129,18 +123,17 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
 	}
 
 	if(length == len_error){
-        throw invalid_argument("Unknown length");
+        throw std::invalid_argument("Unknown length");
 	}
 
 	if(pos == fmt.length()){
-        throw invalid_argument("Сonversion lacks type at end of format");
+        throw std::invalid_argument("Сonversion lacks type at end of format");
     }
 
-    int v;
     switch(fmt[pos++]){
         case 'd':
         case 'i':
-            v = convert<int>(value);
+            int v = convert<int>(value);
             if(force_sign || space_or_sign){
                 result.push_back(v < 0 ? '-' : (space_or_sign ? ' ' : '+'));
             }
@@ -148,10 +141,10 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
             if(left_justify){
                 //b
             }
-            result.append(to_string(v));
+            result.append(std::to_string(v));
             break;
         case 'u':
-            result.append(to_string(convert<unsigned>(value)));
+            result.append(std::to_string(convert<unsigned>(value)));
             break;
         case 'o':
             result.append("(unsigned octal)");
@@ -190,19 +183,21 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
             result.append("(char)");
             break;
         case 's':
-            result.append("(string)");
+            std::string s = convert<std::string>(value);
+            result.append(s);
             break;
         case 'p':
+            void* p = convert<void*>(value);
             result.append("(pointer)");
             break;
         case 'n':
             break;
         default:
-            throw invalid_argument("Unknown format");
+            throw std::invalid_argument("Unknown format");
             break;
     }
     chars_printed += result.length();
-    return result + format(fmt.substr(pos, string::npos), args...);
+    return result + format(fmt.substr(pos, std::string::npos), args...);
 }
 
 #endif
