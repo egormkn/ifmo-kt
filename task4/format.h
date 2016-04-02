@@ -130,18 +130,21 @@ template<typename First, typename... Rest> std::string format(const std::string 
         throw std::invalid_argument("Сonversion lacks type at end of format");
     }
 
+    int d;
+    std::string s;
+    void* p;
     switch(fmt[pos++]){
         case 'd':
         case 'i':
-            int v = convert<int>(value);
+            d = convert<int>(value);
             if(force_sign || space_or_sign){
-                result.push_back(v < 0 ? '-' : (space_or_sign ? ' ' : '+'));
+                result.push_back(d < 0 ? '-' : (space_or_sign ? ' ' : '+'));
             }
-            v = abs(v);
+            d = abs(d);
             if(left_justify){
                 //b
             }
-            result.append(std::to_string(v));
+            result.append(std::to_string(d));
             break;
         case 'u':
             result.append(std::to_string(convert<unsigned>(value)));
@@ -183,11 +186,14 @@ template<typename First, typename... Rest> std::string format(const std::string 
             result.append("(char)");
             break;
         case 's':
-            std::string s = convert<std::string>(value);
+            s = convert<std::string>(value);
             result.append(s);
             break;
         case 'p':
-            void* p = convert<void*>(value);
+            p = convert<void*>(value);
+            if(p == NULL){
+
+			}
             result.append("(pointer)");
             break;
         case 'n':

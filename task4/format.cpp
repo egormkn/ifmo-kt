@@ -44,7 +44,7 @@ std::string format(const std::string &fmt){
 
 
 
-#ifdef TEST
+#ifndef TEST
 int main(){
 	using namespace std;
 	try {
