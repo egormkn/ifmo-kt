@@ -11,7 +11,7 @@ string find_spec(const string &fmt, unsigned &pos, bool has_arguments){
     while(pos < fmt.length()){
         for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
         if(pos == fmt.length()){
-            printed = 0;
+            chars_printed = 0;
             if(has_arguments){
                 throw invalid_argument("Too many arguments for format");
 			} else {
@@ -19,7 +19,7 @@ string find_spec(const string &fmt, unsigned &pos, bool has_arguments){
 			}
         }
         if(pos == fmt.length() - 1){
-            printed = 0;
+            chars_printed = 0;
             throw invalid_argument("Spurious trailing '%%' in format");
         }
         if(fmt[pos + 1] == '%'){
@@ -39,7 +39,7 @@ string find_spec(const string &fmt, unsigned &pos, bool has_arguments){
 string format(const string &fmt){
     unsigned pos = 0;
     string result = find_spec(fmt, pos, false);
-    printed = 0;
+    chars_printed = 0;
     return result;
 }
 
@@ -114,7 +114,6 @@ int main(){
     printf("%s\n", format("Preceding with zeros: %010d \n", 1977).c_str());
     printf("%s\n", format("Some different radices: %d %x %o %#x %#o \n", 100, 100, 100, 100, 100).c_str());
     printf("%s\n", format("floats: %4.2f %+.0e %E \n", 3.1416, 3.1416, 3.1416).c_str());
-    printf("%s\n", format("Width trick: %*.*d \n", "test", 5, 10).c_str());
     printf("%s\n", format("Width trick: %*.*d \n", 5, 5, 10).c_str());
     printf("%s\n", format("%s \n", "A string").c_str());
 

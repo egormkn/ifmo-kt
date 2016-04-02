@@ -3,7 +3,7 @@
 
 using namespace std;
 
-unsigned printed = 0;
+unsigned chars_printed = 0;
 
 string find_spec(const string &fmt, unsigned &pos, bool has_arguments);
 
@@ -64,7 +64,7 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
         if(left_pad){temp.push_back('0');}
         temp.append(to_string(width));
         pos++;
-        printed += result.length();
+        chars_printed += result.length();
         return result + format(temp + fmt.substr(pos, string::npos), args...);
 	} else {
         while(pos < fmt.length() && isdigit(fmt[pos])){
@@ -91,7 +91,7 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
             temp.push_back('.');
             temp.append(to_string(precision));
             pos++;
-            printed += result.length();
+            chars_printed += result.length();
             return result + format(temp + fmt.substr(pos, string::npos), args...);
 	    } else {
             while(pos < fmt.length() && isdigit(fmt[pos])){
@@ -200,7 +200,7 @@ template<typename First, typename... Rest> string format(const string &fmt, Firs
             throw invalid_argument("Unknown format");
             break;
     }
-    printed += result.length();
+    chars_printed += result.length();
     return result + format(fmt.substr(pos, string::npos), args...);
 }
 
