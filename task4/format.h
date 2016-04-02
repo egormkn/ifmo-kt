@@ -38,7 +38,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
     std::string temp = "";
 
     while(pos < fmt.length() && (fmt[pos] == '-' || fmt[pos] == '+' || fmt[pos] == ' ' || fmt[pos] == '#' || fmt[pos] == '0')){
-		switch(fmt[pos++]){
+        switch(fmt[pos++]){
             case '-':
                 left_justify = true;
                 left_pad = false;
@@ -57,9 +57,9 @@ template<typename First, typename... Rest> std::string format(const std::string 
                 left_pad = !left_justify;
                 break;
         }
-	}
+    }
 
-	if(pos < fmt.length() && fmt[pos] == '*'){
+    if(pos < fmt.length() && fmt[pos] == '*'){
         width = convert<int>(value);
         temp = "%";
         if(force_sign){temp.push_back('+');}
@@ -71,20 +71,20 @@ template<typename First, typename... Rest> std::string format(const std::string 
         pos++;
         chars_printed += result.length();
         return result + format(temp + fmt.substr(pos, std::string::npos), args...);
-	} else {
+    } else {
         while(pos < fmt.length() && isdigit(fmt[pos])){
-			temp.push_back(fmt[pos++]);
-		}
+            temp.push_back(fmt[pos++]);
+        }
         if(!temp.empty()){
-			width = stoi(temp);
-		    temp = "";
-		}
-	}
+            width = stoi(temp);
+            temp = "";
+        }
+    }
 
     if(pos < fmt.length() - 1 && fmt[pos] == '.'){
-		pos++;
+        pos++;
         if(fmt[pos] == '*'){
-			precision = convert<int>(value);
+            precision = convert<int>(value);
             temp = "%";
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -97,21 +97,21 @@ template<typename First, typename... Rest> std::string format(const std::string 
             pos++;
             chars_printed += result.length();
             return result + format(temp + fmt.substr(pos, std::string::npos), args...);
-	    } else {
+        } else {
             while(pos < fmt.length() && isdigit(fmt[pos])){
-	    		temp.push_back(fmt[pos++]);
-		    }
+                temp.push_back(fmt[pos++]);
+            }
             if(!temp.empty()){
-			    precision = stoi(temp);
-		        temp = "";
-		    } else {
+                precision = stoi(temp);
+                temp = "";
+            } else {
                 precision = 0;
-			}
-	    }
+            }
+        }
     }
 
-	while(pos < fmt.length() && (fmt[pos] == 'h' || fmt[pos] == 'l' || fmt[pos] == 'j' || fmt[pos] == 'z' || fmt[pos] == 't' || fmt[pos] == 'L')){
-		switch(fmt[pos++]){
+    while(pos < fmt.length() && (fmt[pos] == 'h' || fmt[pos] == 'l' || fmt[pos] == 'j' || fmt[pos] == 'z' || fmt[pos] == 't' || fmt[pos] == 'L')){
+        switch(fmt[pos++]){
             case 'h':
                 length = (length == len_h) ? len_hh : ((length == len_default) ? len_h : len_error);
                 break;
@@ -131,13 +131,13 @@ template<typename First, typename... Rest> std::string format(const std::string 
                 length = (length == len_default) ? len_L : len_error;
                 break;
         }
-	}
+    }
 
-	if(length == len_error){
+    if(length == len_error){
         throw std::invalid_argument("Unknown length");
-	}
+    }
 
-	if(pos == fmt.length()){
+    if(pos == fmt.length()){
         throw std::invalid_argument("Сonversion lacks type at end of format");
     }
 
@@ -202,7 +202,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME d
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -211,12 +211,12 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			temp.append("jd");
-			snprintf(buffer, 1024, temp.c_str(), d);
-			result.append(buffer);
+            }
+            temp.append("jd");
+            snprintf(buffer, 1024, temp.c_str(), d);
+            result.append(buffer);
             break;
         case 'u':
             switch (length){
@@ -246,7 +246,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -255,13 +255,13 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			temp.append("ju");
-			snprintf(buffer, 1024, temp.c_str(), u);
-			result.append(buffer);
-			break;
+            }
+            temp.append("ju");
+            snprintf(buffer, 1024, temp.c_str(), u);
+            result.append(buffer);
+            break;
         case 'o': // TODO o
             switch (length){
                 case len_hh:
@@ -290,7 +290,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -299,13 +299,13 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			temp.append("jo");
-			snprintf(buffer, 1024, temp.c_str(), u);
-			result.append(buffer);
-			break;
+            }
+            temp.append("jo");
+            snprintf(buffer, 1024, temp.c_str(), u);
+            result.append(buffer);
+            break;
         case 'X':
             uppercase = true;
         case 'x': // TODO x
@@ -336,7 +336,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -345,17 +345,17 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			if(uppercase){
-				temp.append("jX");
-			} else {
-				temp.append("jx");
-			}
-			snprintf(buffer, 1024, temp.c_str(), u);
-			result.append(buffer);
-			break;
+            }
+            if(uppercase){
+                temp.append("jX");
+            } else {
+                temp.append("jx");
+            }
+            snprintf(buffer, 1024, temp.c_str(), u);
+            result.append(buffer);
+            break;
         case 'F':
             uppercase = true;
         case 'f': // TODO f
@@ -369,7 +369,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -378,17 +378,17 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			if(uppercase){
-				temp.append("LF");
-			} else {
-				temp.append("Lf");
-			}
-			snprintf(buffer, 1024, temp.c_str(), f);
-			result.append(buffer);
-			break;
+            }
+            if(uppercase){
+                temp.append("LF");
+            } else {
+                temp.append("Lf");
+            }
+            snprintf(buffer, 1024, temp.c_str(), f);
+            result.append(buffer);
+            break;
         case 'E':
             uppercase = true;
         case 'e': // TODO e
@@ -402,7 +402,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -411,17 +411,17 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			if(uppercase){
-				temp.append("LE");
-			} else {
-				temp.append("Le");
-			}
-			snprintf(buffer, 1024, temp.c_str(), f);
-			result.append(buffer);
-			break;
+            }
+            if(uppercase){
+                temp.append("LE");
+            } else {
+                temp.append("Le");
+            }
+            snprintf(buffer, 1024, temp.c_str(), f);
+            result.append(buffer);
+            break;
         case 'G':
             uppercase = true;
         case 'g': // TODO g
@@ -435,7 +435,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -444,17 +444,17 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			if(uppercase){
-				temp.append("LG");
-			} else {
-				temp.append("Lg");
-			}
-			snprintf(buffer, 1024, temp.c_str(), f);
-			result.append(buffer);
-			break;
+            }
+            if(uppercase){
+                temp.append("LG");
+            } else {
+                temp.append("Lg");
+            }
+            snprintf(buffer, 1024, temp.c_str(), f);
+            result.append(buffer);
+            break;
         case 'A':
             uppercase = true;
         case 'a': // TODO a
@@ -468,7 +468,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -477,17 +477,17 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			if(uppercase){
-				temp.append("LA");
-			} else {
-				temp.append("La");
-			}
-			snprintf(buffer, 1024, temp.c_str(), f);
-			result.append(buffer);
-			break;
+            }
+            if(uppercase){
+                temp.append("LA");
+            } else {
+                temp.append("La");
+            }
+            snprintf(buffer, 1024, temp.c_str(), f);
+            result.append(buffer);
+            break;
         case 'c': // TODO c
             switch (length){
                 case len_l:
@@ -498,7 +498,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -507,42 +507,14 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			temp.append("c");
-			snprintf(buffer, 1024, temp.c_str(), c);
-			result.append(buffer);
-			break;
+            }
+            temp.append("c");
+            snprintf(buffer, 1024, temp.c_str(), c);
+            result.append(buffer);
+            break;
         case 's': // TODO s
-            /*switch (length){
-                case len_l:
-                    //s = convert<wchar_t*>(value);
-                    s = convert<char*>(value);
-                    break;
-                case len_default:
-                    s = (char*)value;
-                    break;
-                default:
-                    throw std::invalid_argument("Unsupported length specifier");
-			}
-			printf(s.c_str());
-			result.append(s);
-            /*temp = "%"; /// FIXME
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(force_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
-            if(precision >= 0){
-				temp.push_back('.');
-                temp.append(std::to_string(precision));
-			}
-			temp.append("s");
-			snprintf(buffer, 1024, temp.c_str(), s.c_str());
-			result.append(buffer);
-			break;*/
             s = convert<std::string>(value); 
             result.append(s); 
             break;
@@ -550,7 +522,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
             p = convert<void*>(value);
             if(length != len_default){
                 throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             temp = "%"; /// FIXME
             if(force_sign){temp.push_back('+');}
             if(left_justify){temp.push_back('-');}
@@ -559,13 +531,13 @@ template<typename First, typename... Rest> std::string format(const std::string 
             if(left_pad){temp.push_back('0');}
             if(width != 0){temp.append(std::to_string(width));}
             if(precision >= 0){
-				temp.push_back('.');
+                temp.push_back('.');
                 temp.append(std::to_string(precision));
-			}
-			temp.append("p");
-			snprintf(buffer, 1024, temp.c_str(), p);
-			result.append(buffer);
-			break;
+            }
+            temp.append("p");
+            snprintf(buffer, 1024, temp.c_str(), p);
+            result.append(buffer);
+            break;
         case 'n':
             switch (length){
                 case len_hh:
@@ -594,7 +566,7 @@ template<typename First, typename... Rest> std::string format(const std::string 
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-			}
+            }
             break;
         default:
             throw std::invalid_argument("Unknown format");
