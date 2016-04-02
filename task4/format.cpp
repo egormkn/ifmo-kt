@@ -44,7 +44,7 @@ std::string format(const std::string &fmt){
 
 
 
-#ifndef TEST
+#ifndef RELEASE
 int main(){
 	using namespace std;
 	try {
