@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <string>
 #include <stdexcept>
 #include <cctype>
@@ -80,6 +81,51 @@ int main(){
 
     printf("%s\n", format("floats: %4.2a %+.0A %A \n", 3.1416, 3.1416, 3.1416).c_str());
     printf("floats: %4.2a %+.0A %A \n", 3.1416, 3.1416, 3.1416);
+
+
+    printf("Strings:\n");
+    printf("%s\n", format("Strings:\n").c_str());
+ 
+    const char* s = "Hello";
+    printf("\t.%10s.\n\t.%-10s.\n\t.%*s.\n", s, s, 10, s);
+    printf("%s\n", format("\t.%10s.\n\t.%-10s.\n\t.%*s.\n", s, s, 10, s).c_str());
+ 
+    printf("Characters:\t%c %%\n", 65);
+    printf("%s\n", format("Characters:\t%c %%\n", 65).c_str());
+ 
+    printf("Integers\n");
+    printf("%s\n", format("Integers\n").c_str());
+    printf("Decimal:\t%i %d %.6i %i %.0i %+i %u\n", 1, 2, 3, 0, 0, 4, -1);
+    printf("%s\n", format("Decimal:\t%i %d %.6i %i %.0i %+i %u\n", 1, 2, 3, 0, 0, 4, -1).c_str());
+    printf("Hexadecimal:\t%x %x %X %#x\n", 5, 10, 10, 6);
+    printf("%s\n", format("Hexadecimal:\t%x %x %X %#x\n", 5, 10, 10, 6).c_str());
+    printf("Octal:\t%o %#o %#o\n", 10, 10, 4);
+    printf("%s\n", format("Octal:\t%o %#o %#o\n", 10, 10, 4).c_str());
+ 
+    printf("Floating point\n");
+    printf("%s\n", format("Floating point\n").c_str());
+    printf("Rounding:\t%f %.0f %.32f\n", 1.5, 1.5, 1.3);
+    printf("%s\n", format("Rounding:\t%f %.0f %.32f\n", 1.5, 1.5, 1.3).c_str());
+    printf("Padding:\t%05.2f %.2f %5.2f\n", 1.5, 1.5, 1.5);
+    printf("%s\n", format("Padding:\t%05.2f %.2f %5.2f\n", 1.5, 1.5, 1.5).c_str());
+    printf("Scientific:\t%E %e\n", 1.5, 1.5);
+    printf("%s\n", format("Scientific:\t%E %e\n", 1.5, 1.5).c_str());
+    printf("Hexadecimal:\t%a %A\n", 1.5, 1.5);
+    printf("%s\n", format("Hexadecimal:\t%a %A\n", 1.5, 1.5).c_str());
+    printf("Special values:\t0/0=%g 1/0=%g\n", 0./0, 1./0);
+    printf("%s\n", format("Special values:\t0/0=%g 1/0=%g\n", 0./0, 1./0).c_str());
+ 
+    printf("Variable width control:\n");
+    printf("%s\n", format("Variable width control:\n").c_str());
+    printf("right-justified variable width: '%*c'\n", 5, 'x');
+    printf("%s\n", format("right-justified variable width: '%*c'\n", 5, 'x').c_str());
+    int r1, r2;
+    printf("left-justified variable width : '%*c'%n\n", -5, 'x', &r1);
+    printf("%s\n", format("left-justified variable width : '%*c'%n\n", -5, 'x', &r2).c_str());
+    printf("(the last printf printed %d characters)\n", r1);
+    printf("%s\n", format("(the last printf printed %d characters)\n", r2).c_str());
+
+    
     
     return 0;
 }
