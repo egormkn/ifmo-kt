@@ -1,48 +1,5 @@
-#include <string>
-#include <stdexcept>
-#include <cctype>
-#include <climits>
-#include <cstddef>
-#include <algorithm>
 #include "format.h"
-
-std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
-    std::string result = "";
-    while(pos < fmt.length()){
-        for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
-        if(pos == fmt.length()){
-            chars_printed = 0;
-            if(has_arguments){
-                throw std::invalid_argument("Too many arguments for format");
-			} else {
-                return result;
-			}
-        }
-        if(pos == fmt.length() - 1){
-            chars_printed = 0;
-            throw std::invalid_argument("Spurious trailing '%%' in format");
-        }
-        if(fmt[pos + 1] == '%'){
-            result.push_back('%');
-            pos += 2;
-        } else {
-            pos++;
-            if(!has_arguments){
-                throw std::out_of_range("Need more arguments or unknown format");
-	        }
-	        break;
-        }
-    }
-    return result;
-}
-
-std::string format(const std::string &fmt){
-    unsigned pos = 0;
-    std::string result = find_spec(fmt, pos, false);
-    chars_printed = 0;
-    return result;
-}
-
+#include <climits>
 
 #ifndef RELEASE
 int main(){
@@ -110,7 +67,8 @@ int main(){
     printf("Scientific:\t%E %e\n", 1.5, 1.5);
     printf("%s\n", format("Scientific:\t%E %e\n", 1.5, 1.5).c_str());
     printf("Hexadecimal:\t%a %A\n", 1.5, 1.5);
-    printf("%s\n", format("Hexadecimal:\t%a %A\n", 1.5, 1.5).c_str());
+//    printf("Hexadecimal:\t%s", to_hex(1.5).c_str());
+    printf("%s\n", format("Hexadecimal:\t%a %A\n", (double)1.5, 1.5).c_str());
     printf("Special values:\t0/0=%g 1/0=%g\n", 0./0, 1./0);
     printf("%s\n", format("Special values:\t0/0=%g 1/0=%g\n", 0./0, 1./0).c_str());
  
@@ -124,8 +82,17 @@ int main(){
     printf("(the last printf printed %d characters)\n", r1);
     printf("%s\n", format("(the last printf printed %d characters)\n", r2).c_str());
 
+  //  float f = 1.5;
+    //hexfloat.size = tld;
+//    printf("%s\n", std::bitset<sizeof(float) * CHAR_BIT>(f).to_string().c_str());
     
-    
+//    for(unsigned i = 0; i < hexfloat.size; i++) {
+	//	printf("%X ", hexfloat.c[i]);
+	//}
+
+    char buffer[100];
+
+	
     return 0;
 }
 #endif
