@@ -3,7 +3,7 @@
 #include <string>
 #include <stdexcept>
 #include <cstddef>
-#include "hexfloat/hexfloat.h"
+#include "./hexfloat/hexfloat.h"
 
 template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
     return (To) value;
