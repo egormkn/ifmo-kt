@@ -4,10 +4,9 @@ set (git_cmd "cmd /c dir")
 message(STATUS "git cmd: ${git_cmd}")
 execute_process(COMMAND ${git_cmd}
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-  RESULT_VARIABLE git_result
   OUTPUT_VARIABLE git_ver)
 
-message(STATUS "git ver[${git_result}]: ${git_ver}")
+message(STATUS "Result: ${git_ver}")
 
 message("Ох уж эти стандарты :(")
 
