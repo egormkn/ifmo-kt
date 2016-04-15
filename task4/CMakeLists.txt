@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 
 set (git_cmd "cmd /c dir")
+set (git_ver "ERROR")
 message(STATUS "git cmd: ${git_cmd}")
 execute_process(COMMAND ${git_cmd}
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
