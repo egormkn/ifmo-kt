@@ -160,6 +160,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
     long double f;
     wint_t c;
     std::string s;
+    std::wstring ws;
     char buffer[1024];
 
     switch(fmt[pos++]){
@@ -475,7 +476,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             } else {
                 temp.append("a");
             }
-            printf("\n'%s' '%f'\n\n", temp.c_str(), f);
+            printf("\n'%s' '%Lf'\n\n", temp.c_str(), f);
             snprintf(buffer, 1024, temp.c_str(), f);
             result.append(buffer);
             break;
@@ -511,7 +512,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
                     s = convert<std::string>(value);
                     break;
                 case len_default:
-                    s = convert<std::wstring>(value);
+                    ws = convert<std::wstring>(value);
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
