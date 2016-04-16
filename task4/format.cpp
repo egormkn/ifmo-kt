@@ -1,8 +1,4 @@
 #include "format.h"
- 
-
-
-
 #ifndef RELEASE
 #include <climits>
 
@@ -94,7 +90,6 @@ int main(){
 	//	printf("%X ", hexfloat.c[i]);
 	//}
 
-    char buffer[100];
 
 	
     return 0;
