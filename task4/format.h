@@ -157,7 +157,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
     intmax_t d;
     uintmax_t u;
     void* p;
-    long double f;
+    double f;
     wint_t c;
     std::string s;
     std::wstring ws;
@@ -476,7 +476,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             } else {
                 temp.append("a");
             }
-            printf("\n'%s' '%Lf'\n\n", temp.c_str(), f);
+            printf("\n'%s' '%f'\n\n", temp.c_str(), f);
             snprintf(buffer, 1024, temp.c_str(), f);
             result.append(buffer);
             break;
