@@ -3,7 +3,6 @@
 #include <string>
 #include <stdexcept>
 #include <cstddef>
-#include "hexfloat.h"
 
 template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
     return (To) value;
@@ -32,7 +31,7 @@ std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments)
         } else {
             pos++;
             if(!has_arguments){
-                throw std::out_of_range("Need more arguments or unknown format");
+                throw std::out_of_range("Need more arguments");
 	        }
 	        break;
         }
@@ -476,7 +475,8 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             } else {
                 temp.append("a");
             }
-            printfc(buffer, temp.c_str(), f);
+            printf("\n'%s' '%f'\n\n", temp.c_str(), f);
+            snprintf(buffer, 1024, temp.c_str(), f);
             result.append(buffer);
             break;
         case 'c': // TODO c
@@ -506,7 +506,17 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             result.append(buffer);
             break;
         case 's': // TODO s
-            s = convert<std::string>(value); 
+            switch (length){
+                case len_l:
+                    s = convert<std::string>(value);
+                    break;
+                case len_default:
+                    s = convert<std::wstring>(value);
+                    break;
+                default:
+                    throw std::invalid_argument("Unsupported length specifier");
+			}
+             
             result.append(s); 
             break;
         case 'p': // TODO p
@@ -530,30 +540,31 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             result.append(buffer);
             break;
         case 'n':
+            printed += result.length();
             switch (length){
                 case len_hh:
-                    *(convert<signed char*>(value)) = printed + result.length();
+                    *(convert<signed char*>(value)) = printed;
                     break;
                 case len_h:
-                    *(convert<short int*>(value)) = printed + result.length();
+                    *(convert<short int*>(value)) = printed;
                     break;
                 case len_l:
-                    *(convert<long int*>(value)) = printed + result.length();
+                    *(convert<long int*>(value)) = printed;
                     break;
                 case len_ll:
-                    *(convert<long long int*>(value)) = printed + result.length();
+                    *(convert<long long int*>(value)) = printed;
                     break;
                 case len_j:
-                    *(convert<intmax_t*>(value)) = printed + result.length();
+                    *(convert<intmax_t*>(value)) = printed;
                     break;
                 case len_z:
-                    *(convert<size_t*>(value)) = printed + result.length();
+                    *(convert<size_t*>(value)) = printed;
                     break;
                 case len_t:
-                    *(convert<ptrdiff_t*>(value)) = printed + result.length();
+                    *(convert<ptrdiff_t*>(value)) = printed;
                     break;
                 case len_default:
-                    *(convert<int*>(value)) = printed + result.length();
+                    *(convert<int*>(value)) = printed;
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
