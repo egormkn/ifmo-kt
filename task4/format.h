@@ -509,10 +509,10 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
         case 's': // TODO s
             switch (length){
                 case len_l:
-                    s = convert<std::string>(value);
+                    ws = convert<std::wstring>(value);
                     break;
                 case len_default:
-                    ws = convert<std::wstring>(value);
+                    s = convert<std::string>(value);
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
