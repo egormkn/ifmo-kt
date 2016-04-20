@@ -19,23 +19,24 @@ double g(int v1, int v2){
 
 int main(int argc, char **argv) {
     fscanf(fin, "%d", &n);
-    
-    for(int i = 0, x, y; i < n; i++) {
+    xc.push_back(0);
+    yc.push_back(0);
+    for(int i = 1, x, y; i <= n; i++) {
         fscanf(fin, "%d %d", &x, &y);
         xc.push_back(x);
         yc.push_back(y);
     }
     
-    vector<bool> used(n);
-    vector<double> min_e(n, (double)INT_MAX);
-    vector<int> sel_e(n, -1);
+    vector<bool> used(n + 1);
+    vector<double> min_e(n + 1, (double)INT_MAX);
+    vector<int> sel_e(n + 1, -1);
     double answer = 0;
-    min_e[0] = 0; // вес наименьшего допустимого ребра из вершины i
+    min_e[1] = 0; // вес наименьшего допустимого ребра из вершины i
     
-    for(int i = 0; i < n; ++i) {
+    for(int i = 1; i <= n; ++i) {
         int v = -1;
         
-        for(int j = 0; j < n; ++j) {
+        for(int j = 1; j <= n; ++j) {
             if(!used[j] && (v == -1 || min_e[j] < min_e[v])) {
                 v = j;
             }
@@ -47,7 +48,7 @@ int main(int argc, char **argv) {
             answer += g(v, sel_e[v]);
         }
         
-        for(int to = 0; to < n; ++to)
+        for(int to = 1; to <= n; ++to)
             if(g(v, to) < min_e[to]) {
                 min_e[to] = g(v, to);
                 sel_e[to] = v;
