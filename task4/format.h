@@ -25,6 +25,10 @@ struct format_t {
     enum base_t num_base = decimal;
 };
 
+void* convert(std::nullptr_t value){
+    return (void*) 0;
+}
+
 template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
     return (To) value;
 }
@@ -36,8 +40,6 @@ template<typename To, typename From> typename std::enable_if<!std::is_convertibl
 std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments);
 
 std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed);
-
-//std::string pad();
 
 template<typename First, typename... Rest> std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed, First value, Rest... args){
     std::string result = find_spec(fmt, pos, true);
@@ -353,7 +355,6 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             if(fm.length != len_default){
                 throw std::invalid_argument("Unsupported length specifier");
             }
-            printf("\nPOINTER: %p\n", convert<void*>(value));
             out << std::setfill(fm.left_pad ? '0' : ' ') << (convert<void*>(value) ? convert<void*>(value) : "(nil)");
             result.append(out.str());
             break;
