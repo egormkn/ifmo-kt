@@ -165,11 +165,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
     intmax_t d;      // Integer
     uintmax_t u;     // Unsigned
-    //void* p;         // Pointers
     double f;        // Floating point
-    //wint_t c;        // Characters
-    //std::string s;   // Strings
-    //std::wstring ws; // Wide strings
     
     char buffer[1024];
 
@@ -357,7 +353,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             if(fm.length != len_default){
                 throw std::invalid_argument("Unsupported length specifier");
             }
-            
+            printf("\nPOINTER: %p\n", convert<void*>(value));
             out << std::setfill(fm.left_pad ? '0' : ' ') << (convert<void*>(value) ? convert<void*>(value) : "(nil)");
             result.append(out.str());
             break;
