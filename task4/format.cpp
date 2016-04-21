@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include "format.h"
 #ifndef RELEASE
 #include <climits>
