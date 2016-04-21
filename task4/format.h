@@ -1,9 +1,28 @@
 #ifndef FORMAT_H
 #define FORMAT_H
+
+// http://www.cplusplus.com/reference/cstdio/printf/
 #include <string>
 #include <sstream>
 #include <stdexcept>
 #include <cstddef>
+
+enum len_enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error};
+enum base_t {decimal, octal, hex, scientific, shortest, hexfloat};
+
+struct format_t {
+    bool force_sign = false,
+         left_justify = false,
+         space_or_sign = false,
+         alt_num_format = false,
+         left_pad = false,
+         uppercase = false;
+    int width = 0,
+        precision = -1;
+    char t;
+    enum len_enum length = len_default;
+    enum base_t num_base = decimal;
+};
 
 template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
     return (To) value;
@@ -13,87 +32,53 @@ template<typename To, typename From> typename std::enable_if<!std::is_convertibl
     throw std::invalid_argument("Invalid argument type");
 }
 
-std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
-    std::string result = "";
-    while(pos < fmt.length()){
-        for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
-        if(pos == fmt.length()){
-            if(has_arguments){
-                throw std::invalid_argument("Too many arguments for format");
-			}
-            return result;
-        }
-        if(pos == fmt.length() - 1){
-            throw std::invalid_argument("Spurious trailing '%%' in format");
-        }
-        if(fmt[pos + 1] == '%'){
-            result.push_back('%');
-            pos += 2;
-        } else {
-            pos++;
-            if(!has_arguments){
-                throw std::out_of_range("Need more arguments");
-	        }
-	        break;
-        }
-    }
-    return result;
-}
+std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments);
 
-std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed){
-    return find_spec(fmt, pos, false);
-}
+std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed);
+
+//std::string pad();
 
 template<typename First, typename... Rest> std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed, First value, Rest... args){
-    std::string result = find_spec(fmt, pos, true); // result - string before '%', pos - postion of char after '%'
-    bool force_sign = false,
-         left_justify = false,
-         space_or_sign = false,
-         alt_num_format = false,
-         left_pad = false,
-         uppercase = false;
-    int width = 0,
-        precision = -1; // Ignored if negative
-    enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error} length = len_default;
-    enum {decimal, octal, hex, scientific, shortest, hexfloat} num_base = decimal;
+    std::string result = find_spec(fmt, pos, true);
+    format_t fm;
     std::string temp = "";
 
     while(pos < fmt.length() && (fmt[pos] == '-' || fmt[pos] == '+' || fmt[pos] == ' ' || fmt[pos] == '#' || fmt[pos] == '0')){
         switch(fmt[pos++]){
             case '-':
-                left_justify = true;
-                left_pad = false;
+                fm.left_justify = true;
+                fm.left_pad = false;
                 break;
             case '+':
-                force_sign = true;
-                space_or_sign = false;
+                fm.force_sign = true;
+                fm.space_or_sign = false;
                 break;
             case ' ':
-                space_or_sign = !force_sign;
+                fm.space_or_sign = !fm.force_sign;
                 break;
             case '#':
-                alt_num_format = true;
+                fm.alt_num_format = true;
                 break;
             case '0':
-                left_pad = !left_justify;
+                fm.left_pad = !fm.left_justify;
                 break;
         }
     }
 
     if(pos < fmt.length() && fmt[pos] == '*'){
-        width = convert<int>(value);
+        fm.width = convert<int>(value);
         temp = "%";
-        if(force_sign){temp.push_back('+');}
-        if(left_justify){temp.push_back('-');}
-        if(space_or_sign){temp.push_back(' ');}
-        if(alt_num_format){temp.push_back('#');}
-        if(left_pad){temp.push_back('0');}
-        temp.append(std::to_string(width));
+        if(fm.force_sign){temp.push_back('+');}
+        if(fm.left_justify){temp.push_back('-');}
+        if(fm.space_or_sign){temp.push_back(' ');}
+        if(fm.alt_num_format){temp.push_back('#');}
+        if(fm.left_pad){temp.push_back('0');}
+        temp.append(std::to_string(fm.width));
         return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
     } else {
 		for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
         if(!temp.empty()){
-            width = stoi(temp);
+            fm.width = stoi(temp);
             temp.clear();
         }
     }
@@ -101,24 +86,24 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
     if(pos < fmt.length() - 1 && fmt[pos] == '.'){
         pos++;
         if(fmt[pos] == '*'){
-            precision = convert<int>(value);
+            fm.precision = convert<int>(value);
             temp = "%";
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(alt_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
+            if(fm.force_sign){temp.push_back('+');}
+            if(fm.left_justify){temp.push_back('-');}
+            if(fm.space_or_sign){temp.push_back(' ');}
+            if(fm.alt_num_format){temp.push_back('#');}
+            if(fm.left_pad){temp.push_back('0');}
+            if(fm.width != 0){temp.append(std::to_string(fm.width));}
             temp.push_back('.');
-            temp.append(std::to_string(precision));
+            temp.append(std::to_string(fm.precision));
             return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
         } else {
             for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
             if(!temp.empty()){
-                precision = stoi(temp);
+                fm.precision = stoi(temp);
                 temp.clear();
             } else {
-                precision = 0;
+                fm.precision = 0;
             }
         }
     }
@@ -126,28 +111,28 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
     while(pos < fmt.length() && (fmt[pos] == 'h' || fmt[pos] == 'l' || fmt[pos] == 'j' || fmt[pos] == 'z' || fmt[pos] == 't' || fmt[pos] == 'L')){
         switch(fmt[pos++]){
             case 'h':
-                length = (length == len_h) ? len_hh : ((length == len_default) ? len_h : len_error);
+                fm.length = (fm.length == len_h) ? len_hh : ((fm.length == len_default) ? len_h : len_error);
                 break;
             case 'l':
-                length = (length == len_l) ? len_ll : ((length == len_default) ? len_l : len_error);
+                fm.length = (fm.length == len_l) ? len_ll : ((fm.length == len_default) ? len_l : len_error);
                 break;
             case 'j':
-                length = (length == len_default) ? len_j : len_error;
+                fm.length = (fm.length == len_default) ? len_j : len_error;
                 break;
             case 'z':
-                length = (length == len_default) ? len_z : len_error;
+                fm.length = (fm.length == len_default) ? len_z : len_error;
                 break;
             case 't':
-                length = (length == len_default) ? len_t : len_error;
+                fm.length = (fm.length == len_default) ? len_t : len_error;
                 break;
             case 'L':
-                length = (length == len_default) ? len_L : len_error;
+                fm.length = (fm.length == len_default) ? len_L : len_error;
                 break;
         }
     }
 
-    if(length == len_error){
-        throw std::invalid_argument("Unknown length");
+    if(fm.length == len_error){
+        throw std::invalid_argument("Unknown length specifier");
     }
 
     if(pos == fmt.length()){
@@ -157,20 +142,46 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
     std::stringstream out;
 
+    if(fm.force_sign){
+		out << std::showpos;
+	}
+    if(fm.left_justify){
+		out << std::left;
+    }
+
+    out.fill(fm.left_pad ? '0' : ' ');
+
+    if(fm.width != 0){
+		out.width(fm.width);
+	}
+
+	if(fm.precision >= 0){
+        out.precision(fm.precision);
+    }
+
+    if(fm.alt_num_format){
+	    out << std::showbase << std::showpoint;
+	}
+    //if(fm.space_or_sign){temp.push_back(' ');}
+    //if(fm.alt_num_format){temp.push_back('#');}
+            
+
+            
+
     intmax_t d;      // Integer
     uintmax_t u;     // Unsigned
-    void* p;         // Pointers
+    //void* p;         // Pointers
     double f;        // Floating point
-    wint_t c;        // Characters
-    std::string s;   // Strings
-    std::wstring ws;
+    //wint_t c;        // Characters
+    //std::string s;   // Strings
+    //std::wstring ws; // Wide strings
     
     char buffer[1024];
 
     switch(fmt[pos++]){
         case 'd':
         case 'i':
-            switch (length){
+            switch (fm.length){
                 case len_hh:
                     d = convert<signed char>(value);
                     break;
@@ -201,15 +212,15 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
             // FIXME d, i
             temp = "%";
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(alt_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
-            if(precision >= 0){
+            if(fm.force_sign){temp.push_back('+');}
+            if(fm.left_justify){temp.push_back('-');}
+            if(fm.space_or_sign){temp.push_back(' ');}
+            if(fm.alt_num_format){temp.push_back('#');}
+            if(fm.left_pad){temp.push_back('0');}
+            if(fm.width != 0){temp.append(std::to_string(fm.width));}
+            if(fm.precision >= 0){
                 temp.push_back('.');
-                temp.append(std::to_string(precision));
+                temp.append(std::to_string(fm.precision));
             }
             temp.append("jd");
             snprintf(buffer, 1024, temp.c_str(), d);
@@ -218,13 +229,13 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
             break;
         case 'X':
-            uppercase = true;
+            fm.uppercase = true;
         case 'x':
-            num_base = hex;
+            fm.num_base = hex;
         case 'o':
-            num_base = (num_base == decimal) ? octal : num_base;
+            fm.num_base = (fm.num_base == decimal) ? octal : fm.num_base;
         case 'u':
-            switch (length){
+            switch (fm.length){
                 case len_hh:
                     u = convert<unsigned char>(value);
                     break;
@@ -256,15 +267,15 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
             // FIXME u, x, X, o
             temp = "%";
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(alt_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
-            if(precision >= 0){
+            if(fm.force_sign){temp.push_back('+');}
+            if(fm.left_justify){temp.push_back('-');}
+            if(fm.space_or_sign){temp.push_back(' ');}
+            if(fm.alt_num_format){temp.push_back('#');}
+            if(fm.left_pad){temp.push_back('0');}
+            if(fm.width != 0){temp.append(std::to_string(fm.width));}
+            if(fm.precision >= 0){
                 temp.push_back('.');
-                temp.append(std::to_string(precision));
+                temp.append(std::to_string(fm.precision));
             }
             temp.push_back('j');
             temp.push_back(fmt[pos-1]);
@@ -274,22 +285,22 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             
             break;
         case 'E':
-            num_base = (num_base == decimal) ? scientific : num_base;
+            fm.num_base = (fm.num_base == decimal) ? scientific : fm.num_base;
         case 'G':
-            num_base = (num_base == decimal) ? shortest : num_base;
+            fm.num_base = (fm.num_base == decimal) ? shortest : fm.num_base;
         case 'A':
-            num_base = (num_base == decimal) ? hexfloat : num_base;
-            uppercase = true;
+            fm.num_base = (fm.num_base == decimal) ? hexfloat : fm.num_base;
+            fm.uppercase = true;
         case 'e':
-            num_base = (num_base == decimal) ? scientific : num_base;
+            fm.num_base = (fm.num_base == decimal) ? scientific : fm.num_base;
         case 'g':
-            num_base = (num_base == decimal) ? shortest : num_base;
+            fm.num_base = (fm.num_base == decimal) ? shortest : fm.num_base;
         case 'a':
-            num_base = (num_base == decimal) ? hexfloat : num_base;
+            fm.num_base = (fm.num_base == decimal) ? hexfloat : fm.num_base;
         case 'F':
-            uppercase = (num_base == decimal) ? true : uppercase;
+            fm.uppercase = (fm.num_base == decimal) ? true : fm.uppercase;
         case 'f':
-            switch (length){
+            switch (fm.length){
                 case len_l:
                 case len_default:
                     f = convert<double>(value);
@@ -303,105 +314,57 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
             // FIXME f, F, a, A, g, G, e, E
             temp = "%";
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(alt_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
-            if(precision >= 0){
+            if(fm.force_sign){temp.push_back('+');}
+            if(fm.left_justify){temp.push_back('-');}
+            if(fm.space_or_sign){temp.push_back(' ');}
+            if(fm.alt_num_format){temp.push_back('#');}
+            if(fm.left_pad){temp.push_back('0');}
+            if(fm.width != 0){temp.append(std::to_string(fm.width));}
+            if(fm.precision >= 0){
                 temp.push_back('.');
-                temp.append(std::to_string(precision));
+                temp.append(std::to_string(fm.precision));
             }
-            if(length == len_L){temp.push_back('L');}
+            if(fm.length == len_L){temp.push_back('L');}
             temp.push_back(fmt[pos-1]);
             snprintf(buffer, 1024, temp.c_str(), f);
             result.append(buffer);
             break;
         case 'c':
-            switch (length){
+            switch (fm.length){ // FIXME char should be interpreted as int (?)
                 case len_l:
-                    c = convert<wint_t>(value);
+                    out << (wchar_t) convert<wint_t>(value);
                     break;
                 case len_default:
-                    c = convert<int>(value);
+                    out << (char) convert<int>(value);
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
-            }
-
-
-            // FIXME c
-            temp = "%";
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(alt_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
-            if(precision >= 0){
-                temp.push_back('.');
-                temp.append(std::to_string(precision));
-            }
-            temp.append("c");
-            snprintf(buffer, 1024, temp.c_str(), c);
-            result.append(buffer);
+            } 
+            result.append(out.str());
             break;
         case 's':
-            switch (length){
+            switch (fm.length){
                 case len_l:
-                    ws = convert<std::wstring>(value);
+                    // out << convert<std::wstring>(value); // FIXME Widestrings
                     break;
                 case len_default:
-                    s = convert<std::string>(value);
+                    out << convert<std::string>(value);
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
 			}
-
-
-            // FIXME s
-            temp = "%";
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(alt_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
-            if(precision >= 0){
-                temp.push_back('.');
-                temp.append(std::to_string(precision));
-            }
-            temp.append("s");
-            snprintf(buffer, 1024, temp.c_str(), s.c_str());
-            result.append(buffer);
+            result.append(out.str());
             break;
         case 'p':
-            p = convert<void*>(value);
-            if(length != len_default){
+            if(fm.length != len_default){
                 throw std::invalid_argument("Unsupported length specifier");
             }
-
-
-            // FIXME p
-            temp = "%";
-            if(force_sign){temp.push_back('+');}
-            if(left_justify){temp.push_back('-');}
-            if(space_or_sign){temp.push_back(' ');}
-            if(alt_num_format){temp.push_back('#');}
-            if(left_pad){temp.push_back('0');}
-            if(width != 0){temp.append(std::to_string(width));}
-            if(precision >= 0){
-                temp.push_back('.');
-                temp.append(std::to_string(precision));
-            }
-            temp.append("p");
-            snprintf(buffer, 1024, temp.c_str(), p);
-            result.append(buffer);
+            out << convert<void*>(value);
+            result.append(out.str());
             break;
         case 'n':
             printed += result.length();
-            switch (length){
+            switch (fm.length){
                 case len_hh:
                     *(convert<signed char*>(value)) = printed;
                     break;
@@ -430,6 +393,18 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
                     throw std::invalid_argument("Unsupported length specifier");
             }
             break;
+        case '@':
+            /*
+             * Если аргумент - nullptr_t – выводит nullptr
+             * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
+             * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
+             * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
+             * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
+             * Если ни одно преобразование невозможно – кидается исключение
+             */
+
+            // FIXME @
+            break;
         default:
             throw std::invalid_argument("Unknown format: " + fmt[pos]);
             break;
@@ -440,6 +415,37 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
 template<typename... Args> std::string format(const std::string &fmt, Args... args){
 	return format_impl(fmt, 0, 0, args...);
+}
+
+std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
+    std::string result = "";
+    while(pos < fmt.length()){
+        for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
+        if(pos == fmt.length()){
+            if(has_arguments){
+                throw std::invalid_argument("Too many arguments for format");
+			}
+            return result;
+        }
+        if(pos == fmt.length() - 1){
+            throw std::invalid_argument("Spurious trailing '%%' in format");
+        }
+        if(fmt[pos + 1] == '%'){
+            result.push_back('%');
+            pos += 2;
+        } else {
+            pos++;
+            if(!has_arguments){
+                throw std::out_of_range("Need more arguments");
+	        }
+	        break;
+        }
+    }
+    return result;
+}
+
+std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed){
+    return find_spec(fmt, pos, false);
 }
 
 #endif
