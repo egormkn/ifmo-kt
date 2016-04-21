@@ -6,6 +6,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstddef>
+#include <iomanip>
 
 enum len_enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error};
 enum base_t {decimal, octal, hex, scientific, shortest, hexfloat};
@@ -149,8 +150,6 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 		out << std::left;
     }
 
-    out.fill(fm.left_pad ? '0' : ' ');
-
     if(fm.width != 0){
 		out.width(fm.width);
 	}
@@ -163,10 +162,6 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 	    out << std::showbase << std::showpoint;
 	}
     //if(fm.space_or_sign){temp.push_back(' ');}
-    //if(fm.alt_num_format){temp.push_back('#');}
-            
-
-            
 
     intmax_t d;      // Integer
     uintmax_t u;     // Unsigned
@@ -181,6 +176,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
     switch(fmt[pos++]){
         case 'd':
         case 'i':
+            out << std::setfill(fm.left_pad ? '0' : ' ');
             switch (fm.length){
                 case len_hh:
                     d = convert<signed char>(value);
@@ -235,6 +231,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
         case 'o':
             fm.num_base = (fm.num_base == decimal) ? octal : fm.num_base;
         case 'u':
+            out << std::setfill(fm.left_pad ? '0' : ' ');
             switch (fm.length){
                 case len_hh:
                     u = convert<unsigned char>(value);
@@ -300,6 +297,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
         case 'F':
             fm.uppercase = (fm.num_base == decimal) ? true : fm.uppercase;
         case 'f':
+            out << std::setfill(fm.left_pad ? '0' : ' ');
             switch (fm.length){
                 case len_l:
                 case len_default:
@@ -359,7 +357,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             if(fm.length != len_default){
                 throw std::invalid_argument("Unsupported length specifier");
             }
-            out << convert<void*>(value);
+            out << std::setfill(fm.left_pad ? '0' : ' ') << convert<void*>(value) == nullptr ? "(nil)" : convert<void*>(value);
             result.append(out.str());
             break;
         case 'n':
