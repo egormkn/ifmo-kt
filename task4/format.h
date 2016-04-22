@@ -82,8 +82,6 @@ template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::
         if(fm.floating){
 			r = r + char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
 		} else {
-			printf("%d (%d - %d)\n", fm.precision - r.size(), fm.precision, r.size());
-			
             r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + (r[0] == '0' ? 0 : 1)) + r.substr(2);
 		}
 	}
@@ -420,6 +418,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 }
 
 template<typename... Args> std::string format(const std::string &fmt, Args... args){
+	printf("%s\n", fmt.c_str());
 	return format_impl(fmt, 0, 0, args...);
 }
 
