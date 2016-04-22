@@ -78,7 +78,7 @@ template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::
 	}
     snprintf(buffer, sizeof(buffer), temp.c_str(), value);
     std::string r = buffer;
-    if(fm.precision > 1024 && r.size() > 1024 / 2 && fm.width == 0){
+    if(fm.precision > 1024 && r.size() > 1024 / 2){
         if(fm.floating){
 			r = r + char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
 		} else {
