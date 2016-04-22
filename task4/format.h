@@ -365,7 +365,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             if(fm.length != len_default){
                 throw std::invalid_argument("Unsupported length specifier");
             }
-            out << std::setfill(fm.left_pad ? '0' : ' ') << (convert<void*>(value) ? convert<void*>(value) : "(nil)"); // FIXME Null pointer
+            out << std::setfill(fm.left_pad ? '0' : ' ') << (convert<void*>(value) != NULL ? convert<void*>(value) : "(nil)"); // FIXME Null pointer
             result.append(out.str());
             break;
         case 'n':
