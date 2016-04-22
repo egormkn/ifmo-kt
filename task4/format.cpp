@@ -73,7 +73,8 @@ int main(){
     printf("%s\n", format("Hexadecimal:\t%a %A\n", (double)1.5, 1.5).c_str());
     printf("Special values:\t0/0=%g 1/0=%g\n", 0./0, 1./0);
     printf("%s\n", format("Special values:\t0/0=%g 1/0=%g\n", 0./0, 1./0).c_str());
- 
+
+
     printf("Variable width control:\n");
     printf("%s\n", format("Variable width control:\n").c_str());
     printf("right-justified variable width: '%*c'\n", 5, 'x');

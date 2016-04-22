@@ -2,14 +2,14 @@
 #define FORMAT_H
 
 // http://www.cplusplus.com/reference/cstdio/printf/
+// http://en.cppreference.com/w/cpp/io/c/fprintf
 #include <string>
 #include <sstream>
 #include <stdexcept>
 #include <cstddef>
 #include <iomanip>
 
-enum len_enum {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error};
-enum base_t {decimal, octal, hex, scientific, shortest, hexfloat};
+enum length_t {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error};
 
 struct format_t {
     bool force_sign = false,
@@ -17,17 +17,13 @@ struct format_t {
          space_or_sign = false,
          alt_num_format = false,
          left_pad = false,
-         uppercase = false;
+         uppercase = false,
+         floating = false;
     int width = 0,
         precision = -1;
-    char t;
-    enum len_enum length = len_default;
-    enum base_t num_base = decimal;
+    char type;
+    enum length_t length = len_default;
 };
-
-void* convert(std::nullptr_t value){
-    return (void*) 0;
-}
 
 template<typename To, typename From> typename std::enable_if<std::is_convertible<From, To>::value, To>::type convert(From value){
     return (To) value;
@@ -40,6 +36,40 @@ template<typename To, typename From> typename std::enable_if<!std::is_convertibl
 std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments);
 
 std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed);
+
+template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
+    if(!fm.floating){
+		if(fm.precision < 0){
+		    fm.precision = 1;
+		} else if(fm.left_pad) {
+            fm.left_pad = false;
+		}
+	}
+
+    std::string temp = "%";
+    if(fm.force_sign){temp.push_back('+');}
+    if(fm.left_justify){temp.push_back('-');}
+    if(fm.space_or_sign){temp.push_back(' ');}
+    if(fm.alt_num_format){temp.push_back('#');}
+    if(fm.left_pad){temp.push_back('0');}
+    if(fm.width != 0){temp.append(std::to_string(fm.width > 1024 ? 1024 : fm.width));}
+    if(fm.precision >= 0){
+        temp.push_back('.');
+        temp.append(std::to_string(fm.precision > 1024 ? 1024 : fm.precision));
+    }
+    char buffer[2048];
+    if(fm.floating){
+        if(fm.length == len_L){temp.push_back('L');}
+        if(fm.length == len_l){temp.push_back('l');}
+        temp.push_back(fm.type);
+	} else { 
+        temp.push_back('j');
+        temp.push_back(fm.type);
+	}
+    snprintf(buffer, 2048, temp.c_str(), value);
+    std::string result = buffer;
+    return result;
+}
 
 template<typename First, typename... Rest> std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed, First value, Rest... args){
     std::string result = find_spec(fmt, pos, true);
@@ -70,6 +100,11 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
 
     if(pos < fmt.length() && fmt[pos] == '*'){
         fm.width = convert<int>(value);
+        if(fm.width < 0){
+            fm.width *= -1;
+            fm.left_justify = true;
+            fm.left_pad = false;
+		}
         temp = "%";
         if(fm.force_sign){temp.push_back('+');}
         if(fm.left_justify){temp.push_back('-');}
@@ -101,9 +136,15 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             temp.append(std::to_string(fm.precision));
             return result + format_impl(temp + fmt.substr(pos + 1, std::string::npos), 0, printed + result.length(), args...);
         } else {
+			if(fmt[pos] == '-'){
+				fm.precision = -1;
+				pos++;
+			} else {
+                fm.precision = 1;
+			}
             for(; pos < fmt.length() && isdigit(fmt[pos]); temp.push_back(fmt[pos++]));
             if(!temp.empty()){
-                fm.precision = stoi(temp);
+                fm.precision *= stoi(temp);
                 temp.clear();
             } else {
                 fm.precision = 0;
@@ -142,39 +183,32 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
         throw std::invalid_argument("Сonversion lacks type at end of format");
     }
 
-
     std::stringstream out;
-
     if(fm.force_sign){
 		out << std::showpos;
 	}
     if(fm.left_justify){
 		out << std::left;
     }
-
     if(fm.width != 0){
 		out.width(fm.width);
 	}
-
 	if(fm.precision >= 0){
         out.precision(fm.precision);
     }
-
     if(fm.alt_num_format){
 	    out << std::showbase << std::showpoint;
 	}
-    //if(fm.space_or_sign){temp.push_back(' ');}
-
+    // FIXME if(fm.space_or_sign){temp.push_back(' ');}
+    
     intmax_t d;      // Integer
     uintmax_t u;     // Unsigned
     double f;        // Floating point
     
-    char buffer[1024];
-
-    switch(fmt[pos++]){
+    fm.type = fmt[pos++];
+    switch(fm.type){
         case 'd':
         case 'i':
-            out << std::setfill(fm.left_pad ? '0' : ' ');
             switch (fm.length){
                 case len_hh:
                     d = convert<signed char>(value);
@@ -203,33 +237,13 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
             }
-
-            // FIXME d, i
-            temp = "%";
-            if(fm.force_sign){temp.push_back('+');}
-            if(fm.left_justify){temp.push_back('-');}
-            if(fm.space_or_sign){temp.push_back(' ');}
-            if(fm.alt_num_format){temp.push_back('#');}
-            if(fm.left_pad){temp.push_back('0');}
-            if(fm.width != 0){temp.append(std::to_string(fm.width));}
-            if(fm.precision >= 0){
-                temp.push_back('.');
-                temp.append(std::to_string(fm.precision));
-            }
-            temp.append("jd");
-            snprintf(buffer, 1024, temp.c_str(), d);
-            result.append(buffer);
-
-
-            break;
+            result.append(print_num(fm, d));
+		    break;
         case 'X':
             fm.uppercase = true;
         case 'x':
-            fm.num_base = hex;
         case 'o':
-            fm.num_base = (fm.num_base == decimal) ? octal : fm.num_base;
         case 'u':
-            out << std::setfill(fm.left_pad ? '0' : ' ');
             switch (fm.length){
                 case len_hh:
                     u = convert<unsigned char>(value);
@@ -258,44 +272,18 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
             }
-
-
-            // FIXME u, x, X, o
-            temp = "%";
-            if(fm.force_sign){temp.push_back('+');}
-            if(fm.left_justify){temp.push_back('-');}
-            if(fm.space_or_sign){temp.push_back(' ');}
-            if(fm.alt_num_format){temp.push_back('#');}
-            if(fm.left_pad){temp.push_back('0');}
-            if(fm.width != 0){temp.append(std::to_string(fm.width));}
-            if(fm.precision >= 0){
-                temp.push_back('.');
-                temp.append(std::to_string(fm.precision));
-            }
-            temp.push_back('j');
-            temp.push_back(fmt[pos-1]);
-            snprintf(buffer, 1024, temp.c_str(), u);
-            result.append(buffer);
-
-            
+            result.append(print_num(fm, u));
             break;
         case 'E':
-            fm.num_base = (fm.num_base == decimal) ? scientific : fm.num_base;
         case 'G':
-            fm.num_base = (fm.num_base == decimal) ? shortest : fm.num_base;
         case 'A':
-            fm.num_base = (fm.num_base == decimal) ? hexfloat : fm.num_base;
             fm.uppercase = true;
         case 'e':
-            fm.num_base = (fm.num_base == decimal) ? scientific : fm.num_base;
         case 'g':
-            fm.num_base = (fm.num_base == decimal) ? shortest : fm.num_base;
         case 'a':
-            fm.num_base = (fm.num_base == decimal) ? hexfloat : fm.num_base;
         case 'F':
-            fm.uppercase = (fm.num_base == decimal) ? true : fm.uppercase;
         case 'f':
-            out << std::setfill(fm.left_pad ? '0' : ' ');
+            fm.floating = true;
             switch (fm.length){
                 case len_l:
                 case len_default:
@@ -307,55 +295,45 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
             }
-
-            // FIXME f, F, a, A, g, G, e, E
-            temp = "%";
-            if(fm.force_sign){temp.push_back('+');}
-            if(fm.left_justify){temp.push_back('-');}
-            if(fm.space_or_sign){temp.push_back(' ');}
-            if(fm.alt_num_format){temp.push_back('#');}
-            if(fm.left_pad){temp.push_back('0');}
-            if(fm.width != 0){temp.append(std::to_string(fm.width));}
-            if(fm.precision >= 0){
-                temp.push_back('.');
-                temp.append(std::to_string(fm.precision));
-            }
-            if(fm.length == len_L){temp.push_back('L');}
-            temp.push_back(fmt[pos-1]);
-            snprintf(buffer, 1024, temp.c_str(), f);
-            result.append(buffer);
+            result.append(print_num(fm, f));
             break;
         case 'c':
             switch (fm.length){
                 case len_l:
-                    out << (wchar_t) convert<wint_t>(value);
+                    out << convert<wchar_t>(value); // FIXME Wide chars
                     break;
                 case len_default:
-                    out << (char) convert<int>(value);
+                    out << convert<unsigned char>(value);
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
             } 
             result.append(out.str());
             break;
-        case 's':
+        case 's': {
+            std::string str;
             switch (fm.length){
                 case len_l:
-                    // out << convert<std::wstring>(value); // FIXME Widestrings
+                    // str = convert<std::wstring>(value); // FIXME Wide strings
                     break;
                 case len_default:
-                    out << convert<std::string>(value);
+                    str = convert<std::string>(value);
                     break;
                 default:
                     throw std::invalid_argument("Unsupported length specifier");
 			}
+			if(fm.precision >= 0 && str.length() > (unsigned) fm.precision){
+                str = str.substr(0, fm.precision);
+			}
+			out << str;
             result.append(out.str());
+		    }
             break;
         case 'p':
             if(fm.length != len_default){
                 throw std::invalid_argument("Unsupported length specifier");
             }
-            out << std::setfill(fm.left_pad ? '0' : ' ') << (convert<void*>(value) ? convert<void*>(value) : "(nil)");
+            out << std::setfill(fm.left_pad ? '0' : ' ') << (convert<void*>(value) ? convert<void*>(value) : "(nil)"); // FIXME Null pointer
             result.append(out.str());
             break;
         case 'n':
