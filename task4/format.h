@@ -37,7 +37,17 @@ std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments)
 
 std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed);
 
+std::string char_seq(char c, unsigned n){
+    std::string result = "";
+    for(unsigned i = 0; i < n; i++){
+        result.push_back(c);
+	}
+	return result;
+}
+
 template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
+    // Disclaimer:
+    // This template might not comply *printf standarts but I hope it does
     if(!fm.floating){
 		if(fm.precision < 0){
 		    fm.precision = 1;
@@ -52,7 +62,7 @@ template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::
     if(fm.space_or_sign){temp.push_back(' ');}
     if(fm.alt_num_format){temp.push_back('#');}
     if(fm.left_pad){temp.push_back('0');}
-    if(fm.width != 0){temp.append(std::to_string(fm.width > 1024 ? 1024 : fm.width));}
+    //if(fm.width != 0){temp.append(std::to_string(fm.width > 2048 ? 2048 : fm.width));}
     if(fm.precision >= 0){
         temp.push_back('.');
         temp.append(std::to_string(fm.precision > 1024 ? 1024 : fm.precision));
@@ -66,9 +76,31 @@ template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::
         temp.push_back('j');
         temp.push_back(fm.type);
 	}
-    snprintf(buffer, 2048, temp.c_str(), value);
-    std::string result = buffer;
-    return result;
+    snprintf(buffer, sizeof(buffer), temp.c_str(), value);
+    std::string r = buffer;
+    if(fm.precision > 1024 && r.size() > 1024 / 2 && fm.width == 0){
+        if(fm.floating){
+			r = r + char_seq('0', fm.precision - r.size() + r.find_first_of('.') + 1);
+		} else {
+			printf("%d (%d - %d)\n", fm.precision - r.size(), fm.precision, r.size());
+			
+            r = r.substr(0, 2) + char_seq('0', fm.precision - r.size() + (r[0] == '0' ? 0 : 1)) + r.substr(2);
+		}
+	}
+
+	if((unsigned) fm.width > r.size()){
+        if(fm.left_justify){
+            r = r + char_seq(' ', fm.width - r.size());
+		} else {
+            if(fm.left_pad){
+                r = (r.find_first_of("+- ") == 0) ? r[0] + char_seq('0', fm.width - r.size()) + r.substr(1) : char_seq('0', fm.width - r.size()) + r;
+			} else {
+				r = char_seq(' ', fm.width - r.size()) + r;
+		    }
+		}
+	}
+	
+    return r;
 }
 
 template<typename First, typename... Rest> std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed, First value, Rest... args){

@@ -6,6 +6,9 @@
 
 int main(){
 	using namespace std;
+
+
+	/*
 	try {
         printf("%s\n", format("test", 10).c_str());
     } catch (exception &e){
@@ -91,8 +94,10 @@ int main(){
     
 //    for(unsigned i = 0; i < hexfloat.size; i++) {
 	//	printf("%X ", hexfloat.c[i]);
-	//}
+	//}*/
 
+    printf("%03000d\n", 4000);
+    printf("%s\n", format("%03000d", 4000).c_str());
 
 	
     return 0;
