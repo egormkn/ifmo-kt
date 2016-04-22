@@ -148,6 +148,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
         if(!temp.empty()){
             fm.width = stoi(temp);
             temp.clear();
+            printf("Width: %d\n", fm.width);
         }
     }
 
@@ -176,6 +177,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
             if(!temp.empty()){
                 fm.precision *= stoi(temp);
                 temp.clear();
+                printf("Precision: %d\n", fm.precision);
             } else {
                 fm.precision = 0;
             }
@@ -229,7 +231,7 @@ template<typename First, typename... Rest> std::string format_impl(const std::st
     if(fm.alt_num_format){
 	    out << std::showbase << std::showpoint;
 	}
-    // FIXME if(fm.space_or_sign){temp.push_back(' ');}
+    // if(fm.space_or_sign){temp.push_back(' ');}
     
     intmax_t d;      // Integer
     uintmax_t u;     // Unsigned
