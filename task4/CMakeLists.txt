@@ -1,7 +1,4 @@
 cmake_minimum_required(VERSION 3.1)
-
-message("Ох уж эти стандарты :(")
-message("snprintf так и не заработал")
  
 project(format CXX)
              

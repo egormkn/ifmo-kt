@@ -45,7 +45,7 @@ namespace Format {
 #include <climits>
 int main(){
 	using namespace std;
-
+    
 	try {
         printf("%s\n\n", format("test", 10).c_str());
     } catch (exception &e){
@@ -159,6 +159,25 @@ int main(){
     int* p = nullptr;
     printf("%p\n", p);
     printf("%s\n", format("%p", p).c_str());
+    //*/
+
+
+    
+    nullptr_t k;
+    printf("%s\n", format("%@", k).c_str());
+
+    int* k2 = nullptr;
+    printf("%s\n", format("%@", k2).c_str());
+
+	int b = 0;
+    int* k3 = &b;
+    printf("%s\n", format("%@", k3).c_str());
+
+    const char* k4 = "Hello!";
+    printf("%s\n", format("%@", k4).c_str());
+
+    int k5[3] = {1, 2, 3};
+    printf("%s\n", format("%@", k5).c_str());
 	
     return 0;
 }

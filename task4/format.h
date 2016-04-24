@@ -41,6 +41,40 @@ namespace Format {
 
     std::string char_seq(char c, unsigned n);
 
+    template<typename T> std::string print_at(T value){
+        throw std::invalid_argument("Unknown type");
+	}
+
+	std::string print_at(nullptr_t value){
+        return "nullptr";
+	}
+
+    template<typename T> typename std::enable_if<std::is_convertible<T, std::string>::value, std::string>::type print_at(const T& value){
+        return value;
+	}
+
+	template<typename T> std::string print_at(T* value){
+		if(value == 0){
+			return "nullptr<type>";
+		}
+		return "ptr<type>(value)";
+	}
+
+    template<typename T> typename std::enable_if<std::is_array<T>::value, std::string>::type print_at(T value){
+        return "[Array]";
+	}
+
+				/*
+                 * Если аргумент - nullptr_t – выводит nullptr
+                 * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
+                 * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
+                 * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
+                 * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
+                 * Если ни одно преобразование невозможно – кидается исключение
+                 */
+            
+    
+
     template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
         // Disclaimer:
         // This template might not comply with *printf standarts but I hope everything is OK
@@ -401,16 +435,7 @@ namespace Format {
                 }
                 break;
             case '@':
-                /*
-                 * Если аргумент - nullptr_t – выводит nullptr
-                 * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
-                 * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
-                 * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
-                 * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
-                 * Если ни одно преобразование невозможно – кидается исключение
-                 */
-
-                // FIXME @
+                result.append(print_at(value));
                 break;
             default:
                 throw std::invalid_argument("Unknown format: " + fmt[pos]);
