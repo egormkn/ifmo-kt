@@ -163,21 +163,24 @@ int main(){
 
 
     
-    nullptr_t k;
+    nullptr_t k; // Works
     printf("%s\n", format("%@", k).c_str());
 
-    int* k2 = nullptr;
+    int* k2 = nullptr; // Half
     printf("%s\n", format("%@", k2).c_str());
 
 	int b = 0;
     int* k3 = &b;
     printf("%s\n", format("%@", k3).c_str());
 
-    const char* k4 = "Hello!";
+    const char k4[10] = "Hello!";
     printf("%s\n", format("%@", k4).c_str());
 
     int k5[3] = {1, 2, 3};
     printf("%s\n", format("%@", k5).c_str());
+
+    std::string k6 = "test"; // Works
+	printf("%s\n", format("%@", k6).c_str());
 	
     return 0;
 }

@@ -41,7 +41,7 @@ namespace Format {
 
     std::string char_seq(char c, unsigned n);
 
-    template<typename T> std::string print_at(T value){
+    template<typename T>  typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value, std::string>::type print_at(T value){
         throw std::invalid_argument("Unknown type");
 	}
 
@@ -52,18 +52,19 @@ namespace Format {
     template<typename T> typename std::enable_if<std::is_convertible<T, std::string>::value, std::string>::type print_at(const T& value){
         return value;
 	}
+	
+    template<typename T> typename std::enable_if<std::is_array<T>::value && !std::is_convertible<T, std::string>::value, std::string>::type print_at(T value){
+        return "[Array]";
+	}
 
-	template<typename T> std::string print_at(T* value){
+	template<typename T> typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value, std::string>::type print_at(T* value){
 		if(value == 0){
 			return "nullptr<type>";
 		}
 		return "ptr<type>(value)";
 	}
 
-    template<typename T> typename std::enable_if<std::is_array<T>::value, std::string>::type print_at(T value){
-        return "[Array]";
-	}
-
+    
 				/*
                  * Если аргумент - nullptr_t – выводит nullptr
                  * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
