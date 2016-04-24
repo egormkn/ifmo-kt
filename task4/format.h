@@ -41,11 +41,12 @@ namespace Format {
 
     std::string char_seq(char c, unsigned n);
 
-    template<typename T>  typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value, std::string>::type print_at(T value){
+    template<typename T> std::string print_at(T value){
         throw std::invalid_argument("Unknown type");
 	}
 
-	std::string print_at(nullptr_t value){
+/*
+    std::string print_at(nullptr_t value){
         return "nullptr";
 	}
 
@@ -63,18 +64,16 @@ namespace Format {
 		}
 		return "ptr<type>(value)";
 	}
-
-    
-				/*
-                 * Если аргумент - nullptr_t – выводит nullptr
-                 * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
-                 * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
-                 * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
-                 * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
-                 * Если ни одно преобразование невозможно – кидается исключение
-                 */
-            
-    
+*/
+ 
+/*
+ * Если аргумент - nullptr_t – выводит nullptr
+ * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
+ * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
+ * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
+ * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
+ * Если ни одно преобразование невозможно – кидается исключение
+ */
 
     template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
         // Disclaimer:
