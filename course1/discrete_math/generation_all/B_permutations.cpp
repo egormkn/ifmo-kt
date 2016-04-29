@@ -16,9 +16,11 @@ bool generate(int *a, int n){
 	for(int i = n - 2; i >= 0; i--){
         if(a[i] < a[i + 1]){
             int min = i + 1;
-            for(int j = i + 1; j < n; j++)
-                if (a[j] < a[min] && a[j] > a[i])
+            for(int j = i + 1; j < n; j++){
+                if (a[j] < a[min] && a[j] > a[i]){
                     min = j;
+				}
+			}
             swap(a[i], a[min]);
             while(i + 1 < n - 1){
                 swap(a[i++ + 1], a[n-- - 1]);
