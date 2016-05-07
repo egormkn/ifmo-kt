@@ -66,7 +66,7 @@ namespace Format {
 	template<typename T, int num> typename std::enable_if<!std::is_convertible<T*, std::string>::value, std::string>::type print_at(const T (&a)[num]) {
         std::string r = "[";
         for(int i = 0; i < num - 1; i++){
-			r.append(std::to_string(a[i]) + ", ");
+			r.append(std::to_string(a[i]) + ",");
 		}
 		r.append(std::to_string(a[num - 1]) + ']');
         return r;
@@ -78,10 +78,16 @@ namespace Format {
     
     template<typename T> typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value && std::is_pointer<T>::value, std::string>::type print_at(T& value){
         std::string r;
+        std::string type = typeid(*value).name();
+        if(type == "i"){
+			type = "int";
+		} else if(type == "Ss"){
+			type = "std::string";
+		}
 		if(value == 0){
-			r.append("nullptr<").append(typeid(*value).name()).append(">");
+			r.append("nullptr<").append(type).append(">");
 		} else {
-		    r.append("ptr<").append(typeid(*value).name()).append(">(").append(format("%@", *value)).append(")");
+		    r.append("ptr<").append(type).append(">(").append(format("%@", *value)).append(")");
 		}
 		return r;
 	}
