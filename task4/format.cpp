@@ -9,7 +9,7 @@ namespace Format {
 	    return result;
     }
 
-        std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
+    std::string find_spec(const std::string &fmt, unsigned &pos, bool has_arguments){
         std::string result = "";
         while(pos < fmt.length()){
             for(; pos < fmt.length() && fmt[pos] != '%'; result.push_back(fmt[pos++]));
@@ -39,6 +39,10 @@ namespace Format {
     std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed){
         return find_spec(fmt, pos, false);
     }
+
+    std::string print_at(nullptr_t value){
+        return "nullptr";
+	}
 }
 
 #ifndef RELEASE // TESTS
@@ -108,6 +112,11 @@ int main(){
  
     printf("Characters:\t%c %%\n", 65);
     printf("%s\n", format("Characters:\t%c %%\n", 65).c_str());
+
+    setlocale(LC_CTYPE, "rus"); 
+    wchar_t wc[] = L"тест";
+    printf("Wide characters:\t%lc %lc %%\n", wc[0], wc[1]);
+    printf("%s\n", format("Wide characters:\t%lc %lc %%\n", wc[0], wc[1]).c_str());
  
     printf("Integers\n");
     printf("%s\n", format("Integers\n").c_str());
@@ -159,29 +168,28 @@ int main(){
     int* p = nullptr;
     printf("%p\n", p);
     printf("%s\n", format("%p", p).c_str());
-    //*/
-
 
     
-    nullptr_t k; // Works
-    printf("%s\n", format("%@", k).c_str());
+    
+    nullptr_t k;
+    printf("nullptr: %s\n", format("%@", k).c_str());
 
-    int* k2 = nullptr; // Half
-    printf("%s\n", format("%@", k2).c_str());
+    int* k2 = nullptr;
+    printf("nullptr<int>: %s\n", format("%@", k2).c_str());
 
-	int b = 0;
+	int b = 100500;
     int* k3 = &b;
-    printf("%s\n", format("%@", k3).c_str());
+    printf("ptr<int>: %s\n", format("%@", k3).c_str());
 
     const char k4[10] = "Hello!";
-    printf("%s\n", format("%@", k4).c_str());
+    printf("char[]: %s\n", format("%@", k4).c_str());
 
-    int k5[3] = {1, 2, 3};
-    printf("%s\n", format("%@", k5).c_str());
+    int k5[3] = {100, 2, 3};
+    printf("int[3]: %s\n", format("%@", k5).c_str());
 
-    std::string k6 = "test"; // Works
-	printf("%s\n", format("%@", k6).c_str());
-	
+    std::string k6 = "test";
+	printf("string: %s\n", format("%@", k6).c_str());
+
     return 0;
 }
 #endif

@@ -9,6 +9,9 @@
 #include <cstddef>
 #include <iomanip>
 #include <cstdio>
+#include <typeinfo>
+
+template<typename... Args> std::string format(const std::string& fmt, const Args&... args);
 
 namespace Format {
     enum length_t {len_hh, len_h, len_default, len_l, len_ll, len_j, len_z, len_t, len_L, len_error};
@@ -41,39 +44,47 @@ namespace Format {
 
     std::string char_seq(char c, unsigned n);
 
-    template<typename T> std::string print_at(T value){
-        throw std::invalid_argument("Unknown type");
+    /*
+     * Если аргумент - nullptr_t – выводит nullptr
+     * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
+     * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
+     * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
+     * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
+     * Если ни одно преобразование невозможно – кидается исключение
+     */
+
+    std::string print_at(nullptr_t value);
+
+    template<typename T> typename std::enable_if<!std::is_integral<T>::value && !std::is_convertible<T, std::string>::value && !std::is_pointer<T>::value, std::string>::type print_at(const T& value){
+        throw std::invalid_argument("Invalid argument type");
 	}
 
-/*
-    std::string print_at(nullptr_t value){
-        return "nullptr";
+	template<typename T> typename std::enable_if<std::is_integral<T>::value, std::string>::type print_at(T value){
+        return std::to_string(value);
 	}
+	
+	template<typename T, int num> typename std::enable_if<!std::is_convertible<T*, std::string>::value, std::string>::type print_at(const T (&a)[num]) {
+        std::string r = "[";
+        for(int i = 0; i < num - 1; i++){
+			r.append(std::to_string(a[i]) + ", ");
+		}
+		r.append(std::to_string(a[num - 1]) + ']');
+        return r;
+    }
 
     template<typename T> typename std::enable_if<std::is_convertible<T, std::string>::value, std::string>::type print_at(const T& value){
         return value;
 	}
-	
-    template<typename T> typename std::enable_if<std::is_array<T>::value && !std::is_convertible<T, std::string>::value, std::string>::type print_at(T value){
-        return "[Array]";
-	}
-
-	template<typename T> typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value, std::string>::type print_at(T* value){
+    
+    template<typename T> typename std::enable_if<!std::is_array<T>::value && !std::is_convertible<T, std::string>::value && std::is_pointer<T>::value, std::string>::type print_at(T& value){
+        std::string r;
 		if(value == 0){
-			return "nullptr<type>";
+			r.append("nullptr<").append(typeid(*value).name()).append(">");
+		} else {
+		    r.append("ptr<").append(typeid(*value).name()).append(">(").append(format("%@", *value)).append(")");
 		}
-		return "ptr<type>(value)";
+		return r;
 	}
-*/
- 
-/*
- * Если аргумент - nullptr_t – выводит nullptr
- * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
- * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
- * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
- * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
- * Если ни одно преобразование невозможно – кидается исключение
- */
 
     template<typename T> typename std::enable_if<std::is_arithmetic<T>::value, std::string>::type print_num(format_t fm, T value){
         // Disclaimer:
@@ -131,7 +142,7 @@ namespace Format {
         return r;
     }
 
-    template<typename First, typename... Rest> std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed, First value, Rest... args){
+    template<typename First, typename... Rest> std::string format_impl(const std::string& fmt, unsigned pos, unsigned printed, const First& value, const Rest&... args){
         std::string result = find_spec(fmt, pos, true);
         format_t fm;
         std::string temp = "";
@@ -361,7 +372,7 @@ namespace Format {
             case 'c':
                 switch (fm.length){
                     case len_l:
-                        out << convert<wchar_t>(value); // FIXME Wide chars
+                        // out << convert<wchar_t>(value); // FIXME Wide chars
                         break;
                     case len_default:
                         out << convert<unsigned char>(value);
@@ -438,15 +449,39 @@ namespace Format {
                 result.append(print_at(value));
                 break;
             default:
-                throw std::invalid_argument("Unknown format: " + fmt[pos]);
+                throw std::invalid_argument("Unknown format specifier: '" + fmt[pos] + '\'');
                 break;
         }
         
         return result + format_impl(fmt, pos, printed + result.length(), args...);
     }
-} // namespace
+}
 
-template<typename... Args> std::string format(const std::string &fmt, Args... args){
+
+/**
+ * Returns a std::string formatted with *printf syntax
+ *
+ * @param   fmt
+ *          A <a href="http://cplusplus.com/printf">format string</a>
+ *
+ * @param   args
+ *          Arguments required by the format specifiers in the format
+ *          string. If there are more arguments than format specifiers, the
+ *          extra arguments are ignored. The number of arguments is
+ *          variable and may be zero.
+ *
+ * @throws  std::invalid_format
+ *          If a format string contains an unexpected specifier, 
+ *          an argument can not be converted to required format,
+ *          or in other illegal conditions.
+ *
+ * @throws  std::out_of_range
+ *          If there are not enough arguments in args list
+ *
+ * @return  std::string, formatted using format and args
+ */
+ 
+template<typename... Args> std::string format(const std::string& fmt, const Args&... args){
 	return Format::format_impl(fmt, 0, 0, args...);
 }
 
