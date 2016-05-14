@@ -11,6 +11,36 @@
 #include <cstdio>
 #include <typeinfo>
 
+/**
+ * Returns a std::string formatted with modified *printf syntax (see @param for details)
+ *
+ * @param   fmt
+ *          A <a href="http://cplusplus.com/printf">format string</a>
+ *          Modification: specifier "%@"
+ *          If argument type is nullptr_t, "nullptr" is printed
+ *          If argument type is pointer with value 0, "ptr<%TYPE%>" is printed
+ *          If argument type is pointer with non-zero value, "ptr<%TYPE%>(format("%@", %VALUE%))" is printed
+ *          If argument type is array, prints array content in square brackets
+ *          If argument can be converted into string, prints this string
+ *          Otherwise an exception will be thrown
+ *
+ * @param   args
+ *          Arguments required by the format specifiers in the format
+ *          string. If there are more arguments than format specifiers, the
+ *          extra arguments are ignored. The number of arguments is
+ *          variable and may be zero.
+ *
+ * @throws  std::invalid_format
+ *          If a format string contains an unexpected specifier, 
+ *          an argument can not be converted to required format,
+ *          or in other illegal conditions.
+ *
+ * @throws  std::out_of_range
+ *          If there are not enough arguments in args list
+ *
+ * @return  std::string, formatted using format and args
+ */
+ 
 template<typename... Args> std::string format(const std::string& fmt, const Args&... args);
 
 namespace Format {
@@ -43,15 +73,6 @@ namespace Format {
     std::string format_impl(const std::string &fmt, unsigned pos, unsigned printed);
 
     std::string char_seq(char c, unsigned n);
-
-    /*
-     * Если аргумент - nullptr_t – выводит nullptr
-     * Если аргумент указатель, и его значение равно 0 – выводит nulltpr<имя_типа> 
-     * Если аргумент указатель, и его значение не равно 0 - выводит ptr<имя_типа>(вывод_значения_как_для_%@) 
-     * Если аргумент массив известной размерности – выводит элементы массива через запятую в [] 
-     * Если аргумент может быть преобразован к std::string – выводит результат такого преобразования 
-     * Если ни одно преобразование невозможно – кидается исключение
-     */
 
     std::string print_at(nullptr_t value);
 
@@ -462,30 +483,6 @@ namespace Format {
         return result + format_impl(fmt, pos, printed + result.length(), args...);
     }
 }
-
-
-/**
- * Returns a std::string formatted with *printf syntax
- *
- * @param   fmt
- *          A <a href="http://cplusplus.com/printf">format string</a>
- *
- * @param   args
- *          Arguments required by the format specifiers in the format
- *          string. If there are more arguments than format specifiers, the
- *          extra arguments are ignored. The number of arguments is
- *          variable and may be zero.
- *
- * @throws  std::invalid_format
- *          If a format string contains an unexpected specifier, 
- *          an argument can not be converted to required format,
- *          or in other illegal conditions.
- *
- * @throws  std::out_of_range
- *          If there are not enough arguments in args list
- *
- * @return  std::string, formatted using format and args
- */
  
 template<typename... Args> std::string format(const std::string& fmt, const Args&... args){
 	return Format::format_impl(fmt, 0, 0, args...);
