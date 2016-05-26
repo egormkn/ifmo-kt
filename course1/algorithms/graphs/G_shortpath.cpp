@@ -9,8 +9,8 @@ FILE *fin = fopen("shortpath.in", "r");
 FILE *fout = fopen("shortpath.out", "w");
 
 struct path {
-	int v;
-	int len;
+    int v;
+    int len;
 };
 
 const int MAXN = 100000 + 1;
@@ -40,21 +40,21 @@ bool dfs (int v) {
 }
 
 int main(int argc, char **argv) {
-	fscanf(fin, "%d %d %d %d", &n, &m, &s, &t);
-	for(int i = 0, v1, v2, w; i < m; i++){
+    fscanf(fin, "%d %d %d %d", &n, &m, &s, &t);
+    for(int i = 0, v1, v2, w; i < m; i++){
         fscanf(fin, "%d %d %d", &v1, &v2, &w);
         path p;
         p.v = v2;
         p.len = w;
         g[v1].push_back(p);
-	}
-	
+    }
+
     for (int i = 1; i <= n; i++){
         used[i] = false;
         color[i] = white;
         w[i] = INT_MAX;
     }
-    
+
             w[s] = 0;
     ans.clear();
     for (int i = 1; i <= n; i++){
@@ -73,35 +73,35 @@ int main(int argc, char **argv) {
     for (unsigned i = 0; i < ans.size(); i++){
         if((!startfound && ans[i] != s) || w[ans[i]] == INT_MAX){
             continue;
-		} else if(!startfound && ans[i] == s){
+        } else if(!startfound && ans[i] == s){
             startfound = true;
-		} 
+        }
 
 
 
-  
+
 
 
  for (unsigned j = 0; j < g[ans[i]].size(); j++){
-	 int v = g[ans[i]][j].v;
+     int v = g[ans[i]][j].v;
      int len = g[ans[i]][j].len;
      w[v] = min(w[v], w[ans[i]] + len);
 }
 
 
-            
-	    
 
-	    if(ans[i] == t){
-			fprintf(fout, "%d", w[t]);
+
+
+        if(ans[i] == t){
+            fprintf(fout, "%d", w[t]);
             fclose(fin);
-	        fclose(fout);
-	        return 0;
-		}
+            fclose(fout);
+            return 0;
+        }
     }
-	
+
     fprintf(fout, "Unreachable\n");
-	fclose(fin);
-	fclose(fout);
-	return 0;
+    fclose(fin);
+    fclose(fout);
+    return 0;
 }

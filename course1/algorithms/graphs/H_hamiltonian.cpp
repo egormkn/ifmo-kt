@@ -1,19 +1,19 @@
 #include <cstdio>
 #include <vector>
 #include <algorithm>
- 
+
 using namespace std;
- 
+
 FILE *fin = fopen("hamiltonian.in", "r");
 FILE *fout = fopen("hamiltonian.out", "w");
- 
+
 const int MAXN = 100000 + 1;
 int n = 1, m = 0;
 vector<int> g[MAXN];
 bool used[MAXN];
 enum {white, gray, black} color[MAXN];
 vector<int> ans;
-  
+
 bool dfs (int v) {
     color[v] = gray;
     used[v] = true;
@@ -31,7 +31,7 @@ bool dfs (int v) {
     color[v] = black;
     return false;
 }
- 
+
 int main(int argc, char **argv) {
     fscanf(fin, "%d %d", &n, &m);
     for(int i = 0, v1, v2; i < m; i++){
@@ -54,21 +54,21 @@ int main(int argc, char **argv) {
         }
     }
     reverse(ans.begin(), ans.end());
-     
+
     for (unsigned i = 1; i < ans.size(); i++){
-		bool has = false;
-		for (unsigned j = 0; j < g[ans[i-1]].size(); j++){
-			if(g[ans[i-1]][j] == ans[i]){
-				has = true;
-				break;
-			}
-	    }
-	    if(!has){
+        bool has = false;
+        for (unsigned j = 0; j < g[ans[i-1]].size(); j++){
+            if(g[ans[i-1]][j] == ans[i]){
+                has = true;
+                break;
+            }
+        }
+        if(!has){
             fprintf(fout, "NO");
             fclose(fin);
             fclose(fout);
             return 0;
-		}
+        }
     }
     fprintf(fout, "YES");
     fclose(fin);

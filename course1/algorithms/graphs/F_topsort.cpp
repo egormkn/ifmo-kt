@@ -1,19 +1,19 @@
 #include <cstdio>
 #include <vector>
 #include <algorithm>
- 
+
 using namespace std;
- 
+
 FILE *fin = fopen("topsort.in", "r");
 FILE *fout = fopen("topsort.out", "w");
- 
+
 const int MAXN = 100000 + 1;
 int n = 1, m = 0;
 vector<int> g[MAXN];
 bool used[MAXN];
 enum {white, gray, black} color[MAXN];
 vector<int> ans;
-  
+
 bool dfs (int v) {
     color[v] = gray;
     used[v] = true;
@@ -31,10 +31,10 @@ bool dfs (int v) {
     color[v] = black;
     return false;
 }
- 
+
 int main(int argc, char **argv) {
     fscanf(fin, "%d %d", &n, &m);
-    for(int i = 0, v1, v2; i < m; i++){
+    for (int i = 0, v1, v2; i < m; i++){
         fscanf(fin, "%d %d", &v1, &v2);
         g[v1].push_back(v2);
     }
@@ -54,11 +54,11 @@ int main(int argc, char **argv) {
         }
     }
     reverse(ans.begin(), ans.end());
-     
+
     for (unsigned i = 0; i < ans.size(); i++){
         fprintf(fout, "%d ", ans[i]);
     }
- 
+
     fclose(fin);
     fclose(fout);
     return 0;
