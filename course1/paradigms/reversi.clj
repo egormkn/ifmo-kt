@@ -1,21 +1,24 @@
-(def copyright [
+(def about [
     
+    ""
     "Reversi (Othello) 1.0"
     "by Egor Makarenko"
     "http://github.com/egormkn"
     ""
-    "Game still not works but"
-    "you can just place your game pieces"
+    "Game still not works but you can"
+    "just place your game pieces"
     "on the board to fill it :)"
     ""
-    "Moves should be in format `A1` or `A 1`"
-
+    "Moves should be"
+    "in format `A1` or `A 1`"
+    ""
+    
 ])
 
 ; =================== Sugaring ===================
 
 ; Gets a field from object or its prototype
-(defn proto-get [obj, key]
+(defn proto-get [obj key]
     (cond
         (contains? obj key) (obj key)
         (contains? obj :extends) (recur (:extends obj) key)
@@ -25,7 +28,7 @@
 
 ; Calls a method of object or its prototype,
 ; passing the object itself as the first argument
-(defn proto-call [obj, key & args]
+(defn proto-call [obj key & args]
     (apply (proto-get obj key) (cons obj args))
 )
 
@@ -54,23 +57,60 @@
 (defn square [x] (* x x))
 
 ; Checks, whether coordinates are out of bounds
-(defn outofbounds [board row col]
-    (let [dim (proto-get board :dim)]
-        (or (< row 0) (< col 0) (>= row dim) (>= col dim))
-    )
+(defn outofbounds [dim row col]
+    (or (< row 0) (< col 0) (>= row dim) (>= col dim))
 )
 
-; Parses the string to integer
-(defn parse-int [s] (Integer/parseInt s))
+; Aliases
+(def start (method :start))
+(def printinfo (method :print))
+(def make-move (method :make-move))
+(def score (field :score))
+(def getdim (field :dim))
+(def getname (field :name))
+(def getboard (field :board))
+(def nextid (field :nextid))
+(def getsym (field :sym))
 
-; Reads a point from System.in
+; ================= Move functions =================
+
+; Returns a vector of points that will be reversed
+; when player put a piece at (row; col)
+(defn toreverse [board player row col] ; ----------------------------------------------------------------> TODO
+    [row col]
+) 
+
+; Checks whether a move is forbidden
+; (if no piece will be reversed)
+(defn forbidden [board player row col] 
+    (zero? (count (toreverse board player row col)))
+)
+
+; Reads a point from System.in, performs checks
 ; and converts from chess board coordinates
-(defn read-point [dim]
-    (print "Enter a point (for example, E2): ")
-    (let [point (re-matches #"([a-zA-Z])\s{0,1}(\d+)" (read-line))]
-        (if (nil? point)
-            nil
-            [(- dim (parse-int (point 2)))    (- (int (get (point 1) 0)) 65)]
+(defn read-point [board player]
+    (printf "\t%s, enter a point (for example, E2): " (getname player))
+    (loop []
+        (flush)
+        (if-let [point (re-matches #"([a-zA-Z])\s{0,1}(\d+)" (read-line))]
+            (let [row (- (getdim board) (Integer/parseInt (point 2))) 
+                  col (- (int (get (point 1) 0)) 65)]
+                (cond 
+                    (outofbounds (getdim board) row col) (do 
+                        (print "\tPoint is out of bounds. Try another: ")
+                        (recur)
+                    )
+                    (forbidden board player row col) (do 
+                        (print "\tMove is forbidden. Try another: ")
+                        (recur)
+                    )
+                    :else [row col]
+                )
+            )
+            (do 
+                (print "\tWrong input format. Try again: ")
+                (recur)
+            )
         )
     )
 )
@@ -82,20 +122,16 @@
 (def board-prototype {
     :dim 8
     :fill '.
-    :total (fn gettotal [this] 
-        (reduce + (proto-get this :score))
-    )
-    :print (fn printboard [this] 
-        (let [dim (proto-get this :dim) board (proto-get this :board)]
-            (println "\n\n\t Current board state:\n")
-            (dotimes [n dim] (println 
-                "\t" (- dim n) "" (board n)
-            ))
-            (print "\n\t     ")
-            (dotimes [n dim] (print 
-                (char (+ 65 n)) ""
-            ))
+    :total (fn total-fn [this] (reduce + (score this)))
+    :print (fn print-fn [this] 
+        (let [d (getdim this) board (getboard this)]
+            (println "\n\n\tCurrent board state:\n")
+            (dotimes [n d] (printf "\t%d  %s\n" (- d n) (board n)))
+            (print "\n\t    ")
+            (dotimes [n d] (printf "%c " (char (+ 65 n))))
             (newline)
+            (newline)
+            (flush)
         )
     )
 })
@@ -113,41 +149,37 @@
         ['. '. '. '. '. '. '. '.]
         ['. '. '. '. '. '. '. '.]
     ]
-    :next 0 
+    :nextid 0 
     :score [2 2]
 })
 
-;======================================================================================================================================
-
 ; Player prototype with make-move implementation
 (def player-prototype {
-    :make-move (fn make-move-fn [this board] ;TODO ====================================================
-        (let [point (proto-call this :move board) get (partial proto-get board) sym (proto-get this :sym)]
-            (assoc board 
-                :board (assoc-in (get :board) point sym)
-                :score (assoc (get :score) (get :next) (inc 
-                    ((get :score) (get :next))
-                ))
-                :next (incmod (get :next) 2)
+    :print (fn print-fn [this]
+        (printf "\t%s plays for %s\n" (proto-get this :name) (getsym this))
+    )
+    :make-move (fn make-move-fn [this board] 
+        (assoc board 
+            :board (assoc-in ; ---------------------------------------------------------------> TODO
+                (getboard board) 
+                (proto-call this :move board)
+                (getsym this)
             )
+            :score (assoc (score board) (nextid board) (inc 
+                ((score board) (nextid board))
+            ))
+            :nextid (incmod (nextid board) 2)
         )
     )
 })
 
-(def make-move (method :make-move))
-
 ; Human player, that takes moves from System.in
 (def human {
     :extends player-prototype
-    :name "Neo (you)" ; Wake up, Neo!
+    :name "Neo" ; Wake up, Neo!
     :sym 'X
     :move (fn move-fn [this board]
-        (loop [point (read-point (proto-get board :dim))]
-            (if (or (nil? point) (outofbounds board (point 0) (point 1)))
-                (recur (read-point (proto-get board :dim)))
-                point
-            )
-        )
+        (read-point board this)
     )
 })
 
@@ -158,70 +190,57 @@
     :name "Agent Smith" ; Kill all humans!!!1
     :sym 'O
     :move (fn move-fn [this board]
-        (loop [point (read-point (proto-get board :dim))]
-            (if (or (nil? point) (outofbounds board (point 0) (point 1)))
-                (recur (read-point (proto-get board :dim)))
-                point
-            )
-        )
+        (read-point board this) ; ---------------------------------------------------------------> TODO
     )
 })
 
-(def playerlist [human robot])
-
-(defn toreverse [board sym row col] ;TODO =============================================================
-    (if (or (outofbounds board row col) (not= sym (proto-get board :board)))
-        [] ; Empty vector
-        []
-    )
-)
-
-
-(defn init []
-    (newline)
-    (doseq [s copyright]
-        (println "\t" s)
-    )
-    (newline)
-    (doseq [p playerlist] 
-        (println "\t"(proto-get p :name) "plays for" (proto-get p :sym))
-    )
-    
-    (proto-call board :print)
-    
-    (loop [board board] ;CHECK ===================================================================
-        (let [playerid (proto-get board :next)]
-            (if false ; No moves available ;TODO
-                (do 
-                    (printf "%s has no moves available!\n" ((playerlist playerid) :name))
-                    (recur (assoc board 
-                        :next (incmod playerid 2)
-                    ))
-                )
-                (let [player (playerlist playerid) newboard (make-move (playerlist playerid) board)]
-                    (proto-call newboard :print)
-                    (if (= 
-                            (square (proto-get newboard :dim)) 
-                            (proto-call newboard :total)
+(def gameserver {
+    :print (fn print-fn [this] (doseq [s about] (printf "\t%s\n" s)))
+    :start (fn start-fn [this board player1 player2]
+        (printinfo this)
+        (printinfo player1)
+        (printinfo player2)
+        (printinfo board)
+        (flush)
+        
+        (loop [board board] ;CHECK ===================================================================
+            (let [playerid (proto-get board :nextid) player ([player1 player2] playerid)]
+                (if false ; No moves available ;TODO
+                    (do 
+                        (printf "\n\t%s has no moves available!\n" (player :name))
+                        (recur (assoc board 
+                            :nextid (incmod playerid 2)
+                        ))
+                    )
+                    (let [newboard (make-move player board)]
+                        (printinfo newboard)
+                        (when-not (proto-call this :finish board [player1 player2])
+                            (recur newboard)
                         )
-                        (printf 
-                            "%s wins with a score %d:%d" 
-                            (player :name) 
-                            (first (proto-get newboard :score)) 
-                            (second (proto-get newboard :score))
-                        )
-                        (recur newboard)
                     )
                 )
             )
         )
     )
-)
-
-(def gameserver {
-    :player1 human
-    :player2 robot
-    :start init
+    :finish (fn [this board players] ; --------------------------------------------------------------------------> TODO
+        (when 
+            (or (= 
+                    (square (getdim board)) 
+                    (proto-call board :total)
+                )
+                (zero? (reduce * (score board)))
+            )
+            (let [p1 (first (score board)) p2 (second (score board))]
+                (printf
+                    "%s wins with a score %d:%d" 
+                    (getname (players (if (> p1 p2) 0 1)))
+                    p1 
+                    p2
+                )
+            )
+        )
+    )
 })
 
-(init)
+(start gameserver board human robot)
+
