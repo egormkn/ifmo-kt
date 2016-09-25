@@ -12,6 +12,7 @@
 - [Язык программирования C/C++](https://github.com/egormkn/ifmo-kt/blob/master/course1/c_language/README.md)
 
 ### Полезные ссылки
+все нормлаьно едем дальше
 - [Официальный сайт ИТМО](http://www.ifmo.ru/) (Расписание [занятий](http://www.ifmo.ru/ru/schedule/raspisanie_zanyatiy.htm)/[сессии](http://www.ifmo.ru/ru/exam/raspisanie_sessii.htm))
 - [ИСУ ИТМО](https://isu.ifmo.ru/)
 - [ЦДО ИТМО](http://de.ifmo.ru/)
