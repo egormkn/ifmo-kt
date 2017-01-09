@@ -41,7 +41,6 @@ int main(int argc, char **argv) {
     }
 
     int cost = 0;
-    vector < pair<int, int> > res;
     sort(g.begin(), g.end());
     p.resize(n + 1);
 
