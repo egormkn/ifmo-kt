@@ -1,0 +1,239 @@
+(comment defn)
+
+(comment apply function wrapperFunction to argumentsArray)
+
+
+(def Constant)
+(def Variable)
+(def Negate)
+(def Sin)
+(def Cos)
+(def Add)
+(def Subtract)
+(def Multiply)
+(def Divide)
+
+
+(defn getPrototype [obj, key]
+  (cond
+    (contains? obj key) (obj key)
+    (contains? obj :prototype) (getPrototype (:prototype obj) key)
+    (true) nil
+  )
+)
+
+(defn callPrototype [obj key & args]
+  (apply (getPrototype obj key) (cons obj args)))
+
+(defn callMethod [key]
+  (fn [obj & args] (apply (partial callPrototype obj key) args)))
+
+(defn field [key]
+  (fn [obj] (getPrototype obj key)))
+
+(defn callConstructor [ctor prototype]
+  (fn [& args] (apply (partial ctor {:prototype prototype}) args)))
+
+
+
+
+(defn diff [arg v]
+  ((callMethod :diff) arg v))
+
+(defn evaluate [arg vars]
+  ((callMethod :eval) arg vars))
+
+(defn appl
+  ([arg first]
+   ((callMethod :apply) arg first))
+  ([arg first second]
+   ((callMethod :apply) arg first second)))
+
+(defn toString [arg]
+  ((callMethod :toString) arg))
+
+
+
+
+
+
+(defn firstArgument [arg]
+  ((field :ops) arg))
+
+(defn secondArgument [arg]
+  ((field :op) arg))
+
+
+(defn ConstantConst [this value]
+  (assoc this
+    :value value))
+
+(def ConstantProto {
+                    :diff (fn [this v]
+                            (Constant 0.0))
+                    :eval (fn [this vars]
+                            ((field :value) this))
+                    :toString (fn [this]
+                                (str ((field :value) this)))
+                    })
+
+(def Constant (callConstructor ConstantConst ConstantProto))
+
+
+(defn VariableConstant [this variableName]
+  (assoc this
+    :name variableName))
+
+(def variablePrototype {
+                    :diff (fn [this v]
+                            (if (= v ((field :name) this))
+                              (Constant 1.0)
+                              (Constant 0.0)))
+                    :eval (fn [this vars]
+                            (get vars ((field :name) this)))
+                    :toString (fn [this]
+                                (str ((field :name) this)))
+                    })
+
+(def Variable (callConstructor VariableConstant variablePrototype))
+
+
+(defn BinaryConst [this ops o]
+  (assoc this
+    :ops ops
+    :operator o))
+
+(def BinaryPrototype {
+                  :eval (fn [this vars]
+                          (appl this (map (fn [a] (evaluate a vars)) (firstArgument this))))
+                  :toString (fn [this]
+                              (str "(" ((field :operator) this) " " (clojure.string/join " " (map toString (firstArgument this))) ")"))
+                  })
+
+(def Binary (callConstructor BinaryConst BinaryPrototype))
+
+
+(defn addConstant [this & ops]
+  (BinaryConst this ops "+"))
+
+(def addPrototype
+  (assoc BinaryPrototype
+    :diff (fn [this v]
+            (apply Add (map (fn [a] (diff a v)) (firstArgument this))))
+    :apply (fn [this args]
+             (reduce + args))))
+
+(def Add (callConstructor addConstant addPrototype))
+
+
+(defn SubtractConst [this & ops]
+  (BinaryConst this ops "-"))
+
+(def SubtractPrototype
+  (assoc BinaryPrototype
+    :diff (fn [this v]
+            (apply Subtract (map (fn [a] (diff a v)) (firstArgument this))))
+    :apply (fn [this args]
+             (reduce - args))))
+
+(def Subtract (callConstructor SubtractConst SubtractPrototype))
+
+
+(defn MultiplyConst [this & ops]
+  (BinaryConst this ops "*"))
+
+(def MultiplyPrototype
+  (assoc BinaryPrototype
+    :diff (fn [this v]
+            (let [f (first (firstArgument this)) argument (if (empty? (rest (firstArgument this))) (Constant 1.0) (apply Multiply (rest (firstArgument this))))]
+              (Add (Multiply (diff f v) argument) (Multiply f (diff argument v)))))
+    :apply (fn [this args]
+             (reduce * args))))
+
+(def Multiply (callConstructor MultiplyConst MultiplyPrototype))
+
+
+(defn DivideConst [this & ops]
+  (BinaryConst this ops "/"))
+
+(def DividePrototype
+  (assoc BinaryPrototype
+    :diff (fn [this v]
+            (let [f (first (firstArgument this)) argument (if (empty? (rest (firstArgument this))) (Constant 1.0) (apply Divide (rest (firstArgument this))))]
+              (Divide
+                (Subtract
+                  (Multiply (diff f v) argument)
+                  (Multiply f (diff argument v)))
+                (Multiply argument argument))))
+    :apply (fn [this args]
+             (reduce / args))))
+
+(def Divide (callConstructor DivideConst DividePrototype))
+
+;-------
+(defn UnaryConst [this op o]
+  (assoc this
+    :op op
+    :operator o))
+
+(def UnaryProto {
+                 :eval (fn [this vars]
+                         (appl this (evaluate (secondArgument this) vars)))
+                 :toString (fn [this]
+                             (str "(" ((field :operator) this) " " (toString (secondArgument this)) ")"))
+                 })
+
+(def Unary (callConstructor UnaryConst UnaryProto))
+
+;-------
+(defn NegateConst [this op]
+  (UnaryConst this op "negate"))
+
+(def NegateProrotype
+  (assoc UnaryProto
+    :diff (fn [this v]
+            (Negate (diff (secondArgument this) v)))
+    :apply (fn [this a]
+             (- a))))
+
+(def Negate (callConstructor NegateConst NegateProrotype))
+
+;-------
+
+(defn CosConst [this op]
+  (UnaryConst this op "cos"))
+
+(def CosProrotype
+  (assoc UnaryProto
+    :diff (fn [this v]
+            (Multiply (Negate (Sin (secondArgument this))) (diff (secondArgument this) v)))
+    :apply (fn [this a]
+             (Math/cos a))))
+
+(def Cos (callConstructor CosConst CosProrotype))
+
+
+(defn SinConst [this op]
+  (UnaryConst this op "sin"))
+
+(def SinProrotype
+  (assoc UnaryProto
+    :diff (fn [this v]
+            (Multiply (Cos (secondArgument this)) (diff (secondArgument this) v)))
+    :apply (fn [this a]
+             (Math/sin a))))
+
+(def Sin (callConstructor SinConst SinProrotype))
+
+(defn parseObject [expression]
+  (let [binaryOperation {'+ Add '- Subtract '* Multiply '/ Divide}
+        unaryOperation {'negate Negate 'sin Sin 'cos Cos}]
+    (cond
+      (string? expression) (parseObject (read-string expression))
+      (seq? expression)
+      (let [exp (first expression)]
+        (cond
+          (contains? binaryOperation exp) (apply (get binaryOperation exp) (map parseObject (rest expression)))
+          (contains? unaryOperation exp) ((get unaryOperation exp) (parseObject (second expression)))))
+      (or (integer? expression) (float? expression)) (Constant expression)
+      (symbol? expression) (Variable (str expression)))))

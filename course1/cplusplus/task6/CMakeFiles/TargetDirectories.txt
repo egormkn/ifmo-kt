@@ -1,0 +1,7 @@
+S:/ifmo-kt/task6/CMakeFiles/install/strip.dir
+S:/ifmo-kt/task6/CMakeFiles/lazy_string.dir
+S:/ifmo-kt/task6/CMakeFiles/edit_cache.dir
+S:/ifmo-kt/task6/CMakeFiles/install.dir
+S:/ifmo-kt/task6/CMakeFiles/install/local.dir
+S:/ifmo-kt/task6/CMakeFiles/rebuild_cache.dir
+S:/ifmo-kt/task6/CMakeFiles/list_install_components.dir

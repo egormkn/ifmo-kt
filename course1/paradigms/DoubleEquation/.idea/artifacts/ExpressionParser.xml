@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ExpressionParser">
+    <output-path>$PROJECT_DIR$/out/artifacts/ExpressionParser</output-path>
+    <root id="archive" name="ExpressionParser.jar">
+      <element id="module-output" name="DoubleEquation" />
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/out/artifacts/ExpressionParser/META-INF/MANIFEST.MF" />
+      </element>
+    </root>
+  </artifact>
+</component>

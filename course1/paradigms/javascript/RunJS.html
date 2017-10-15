@@ -1,0 +1,26 @@
+<html><head></head><body>
+<pre id="out"></pre>
+<script>
+    // Helper functions
+    function escape(str) {
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
+    }
+
+    var logArea = document.getElementById("out");
+    function println() {
+        print.apply(null, arguments);
+        print("\n");
+    }
+
+    function print() {
+        logArea.innerHTML += escape(Array.prototype.map.call(arguments, String).join(' '));
+    }
+
+    function include(file) {
+        document.write('<script src="' + file + '" charset="UTF-8"></' + 'script>');
+    }
+    
+    var global = global || window;
+</script>
+<script src="script.js" charset="UTF-8"></script>
+</body></html>

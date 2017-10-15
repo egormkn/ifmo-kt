@@ -1,0 +1,140 @@
+
+
+
+
+
+/*
+     FILE ARCHIVED ON 16:07:40 сен 6, 2013 AND RETRIEVED FROM THE
+     INTERNET ARCHIVE ON 19:55:08 фев 12, 2016.
+     JAVASCRIPT APPENDED BY WAYBACK MACHINE, COPYRIGHT INTERNET ARCHIVE.
+
+     ALL OTHER CONTENT MAY ALSO BE PROTECTED BY COPYRIGHT (17 U.S.C.
+     SECTION 108(a)(3)).
+*/
+body {
+    font-family: Arial;
+}
+
+dir {
+    margin-top: 0px;
+    margin-bottom: 0px;
+
+}
+
+table {
+    spacing: 2px;
+    margin-bottom: 2px;
+}
+
+ol {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+table.part {
+    border: 1px solid #6666ff;
+    spacing: 2px;
+}
+
+td {
+    /* background-color: white;*/
+}
+
+td.part {
+    font-size:larger;
+    text-align:center;
+    font-weight:bold;
+    background-color: #6666ff;
+    color:white;
+}
+
+table.lecture {
+    border: 1px solid #dddddd;
+}
+
+td.lecture {
+    font-weight:bold;
+    background-color: #dddddd;
+    color:black;
+}
+
+td.contents {
+    padding-left:0;
+}
+
+td.contents-event {
+    padding-left:20;
+}
+
+td.day {
+    font-size:larger;
+    text-align:center;
+    font-weight:bold;
+    background-color: #6666ff;
+    color:white;
+}
+
+td.problem {
+    padding-left:20;
+}
+
+td.event {
+    background-color: #ffccff;
+    padding-left:5;
+}
+
+td.tour {
+    background-color: #ccffcc;
+    padding-left:5;
+}
+
+table.day {
+    font-size: smaller;
+    border: 1px solid #6666ff;
+    spacing: 2px;
+}
+
+td.lecturers {
+    padding-left: 10px;
+    font-size: smaller;
+}
+
+div.lecturer {
+    padding-left: 20px;
+}
+
+div.caption {
+    font-weight: bold;
+}
+
+.small {
+    font-size: smaller;
+}
+
+.indent {
+    padding-left: 20px;
+}
+
+b.caption {
+    font-size: larger;
+}
+
+table.black, table.black tr, table.black td, table.black th {
+    border: 1px solid black;
+    border-collapse: collapse;
+    vertical-align: top;
+
+    padding: 3px;
+    cell-spacing
+
+    text-align: justify;
+}
+table.black {
+    background: black;
+}
+table.black td, table.black th {
+    background: white;
+}
+.center {
+    text-align: center;
+}

@@ -1,0 +1,2 @@
+S:\Programs\TDM-GCC\bin\ar.exe qc librational.a  CMakeFiles/rational.dir/rational.cpp.obj
+S:\Programs\TDM-GCC\bin\ranlib.exe librational.a

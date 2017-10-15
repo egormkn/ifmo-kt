@@ -1,0 +1,2 @@
+S:\Programs\TDM-GCC\bin\ar.exe qc liblazy_string.a  CMakeFiles/lazy_string.dir/lazy_string.cpp.obj
+S:\Programs\TDM-GCC\bin\ranlib.exe liblazy_string.a

@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+S:/ifmo-kt/task6/lazy_string.cpp
+lazy_string.h
+S:/ifmo-kt/task6/lazy_string.h
+
+S:/ifmo-kt/task6/lazy_string.h
+memory
+-
+string
+-
+istream
+-
+ostream
+-
+

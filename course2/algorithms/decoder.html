@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+	<body>
+	<textarea id="text" width="400" height="200" style="resize: vertical; width: 400px; height: 200px;"></textarea>
+	
+	<input type="button" value="Decode" onclick="decode();return false;">
+	
+	<div id="result"></div>
+	
+	<script type="text/javascript">
+	
+	var frequency = {
+		"î": 0.10983,
+		"å": 0.08483,
+		"à": 0.07998,
+		"è": 0.07367,
+		"í": 0.06700,
+		"ò": 0.06318,
+		"ñ": 0.05473,
+		"ð": 0.04746,
+		"â": 0.04533,
+		"ë": 0.04343,
+		"ê": 0.03486,
+		"ì": 0.03203,
+		"ä": 0.02977,
+		"ï": 0.02804,
+		"ó": 0.02615,
+		"ÿ": 0.02001,
+		"û": 0.01898,
+		"ü": 0.01735,
+		"ã": 0.01687,
+		"ç": 0.01641,
+		"á": 0.01592,
+		"÷": 0.01450,
+		"é": 0.01208,
+		"õ": 0.00966,
+		"æ": 0.00940,
+		"ø": 0.00718,
+		"þ": 0.00639,
+		"ö": 0.00486,
+		"ù": 0.00361,
+		"ý": 0.00331,
+		"ô": 0.00267,
+		"ú": 0.00037,
+		"¸": 0.00013
+	};
+	
+	var replacer = {
+		"á": "î",
+		"ø": "ò",
+		"û": "å",
+		"ó": "è",
+		"÷": "à",
+		"ú": "í",
+		"í": "ñ",
+		"ä": "ð",
+		"ÿ": "ë",
+		"ê": "ê",
+		"ï": "â",
+		"î": "ó",
+		"â": "ì",
+		"ô": "ï",
+		"ù": "ü",
+		"à": "ä",
+		"ý": "ÿ",
+		"é": "û",
+		"æ": "ç",
+		"ò": "á",
+		"ü": "÷",
+		"ñ": "æ",
+		"ã": "é",
+		"þ": "ã",
+		"å": "þ",
+		"õ": "õ",
+		"ð": "ö",
+		"ö": "ý",
+		"ì": "ô",
+		"ë": "ù",
+		"è": "ø",
+		"ç": "ù",
+		"¸": "¸"
+	};
+	
+	function decode() {
+		var text = document.getElementById("text").value;
+		var result = "";
+		var c = {};
+		for (var i = 0; i < text.length; i++) {
+			var ch = text[i].toLowerCase();
+			var temp;
+			if (replacer[ch] !== undefined) {
+				temp = replacer[ch];
+			} else {
+				temp = ch;
+			}
+			if (ch != text[i]) {
+				temp = temp.toUpperCase();
+			}
+			result += temp;
+		}
+		document.getElementById("result").innerHTML = result;
+	}
+	</script>
+	
+	</body>
+</html>

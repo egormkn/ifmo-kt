@@ -1,0 +1,14 @@
+How Computers Communicate
+
+Data communication between computers is a very important part of the information technology. In the modern world business can not be successful without the proper implementations of the communication systems. Millions of people use their computers every day to send and receive the voice, video and text messages and files. Let's find out how our computers communicate.
+
+For communication both computers should understand a common language known as protocols. /*******/ TCP/IP is the most commonly used suite of protocols, applicable both in the LAN and WAN. 
+Its functionality is organized into four abstraction layers: the application layer, which provides process-to-process data exchange for applications; the transport layer handling host-to-host communication; the network layer, containing communication methods within a single network segment; and the link layer, connecting independent networks.
+TCP/IP provides end-to-end data communication specifying how data should be packetized, addressed, transmitted, routed and received. 
+
+Here is a schematic of a connection between two computers.
+...
+
+
+So this is how the connection is being established now. And the question is: how will it be in future?
+

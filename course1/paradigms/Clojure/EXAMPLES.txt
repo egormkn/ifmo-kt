@@ -1,0 +1,515 @@
+
+S:\original-paradigms\clojure>clojure script.clj
+
+========================================
+Introduction
+========================================
+
+========== Expressions and variables ==========
+
+---------- Expressions ----------
+    Add: (+ 2 3) -> 5
+    Subtract: (- 2 3) -> -1
+    Compound expression: (+ 2 (- 3 1)) -> 4
+    Variable-args functions: (- 10 1 2 3) -> 4
+    Special cases: (- 10) -> -10
+    Nullary functions: (+) -> 0
+    Equality: (= (* 2 3) (+ 3 3)) -> true
+
+---------- Variables ----------
+    Define variable: (def x 10) -> #'user/x
+    Use variable: (+ x (* x 3)) -> 40
+10
+    Output variable : (println x) ->
+    Output function: + -> clojure.core$_PLUS_@4f418
+    Variable as a function: (x 10) -> ClassCastException: java.lang.Long cannot be cast to clojure.lang.IFn
+
+---------- Simple types ----------
+    Integers: (type 10) -> class java.lang.Long
+    Floating-point: (type 10.0) -> class java.lang.Double
+    Rational: (type 2/3) -> class clojure.lang.Ratio
+    String: (type "\"Hello\"") -> class java.lang.String
+    Booleans: (type true) -> class java.lang.Boolean
+    Type conversion: (double 2/3) -> 0.6666666666666667
+
+========== Custom Functions ==========
+
+---------- Simple Functions ----------
+    Define function: (defn square [x] (* x x)) -> #'user/square
+    Use function: (square 8) -> 64
+    Nullary function: (defn nullary [] 10) -> #'user/nullary
+    (nullary) -> 10
+    Anonymous functions: ((fn [x] (+ x x)) 10) -> 20
+    Functions as values: #'user/twice -> #'user/twice
+    ((twice square) 3) -> 81
+
+---------- Recursive Functions ----------
+    Recursive: (rec-fib 40) -> 165580141
+    Tail-recursive: (iter-fib 90) -> 4660046610375530309
+    Loop: (loop-fib 90) -> 4660046610375530309
+
+---------- Pre and Post conditions ----------
+    Pre and posconditions ok: (power 2 5) -> 32
+    Precondition violated: (power 2 -5) -> AssertionError: Assert failed: (<= 0 b)
+    (power 2 0) -> 1
+    First part of invalid postcondition violated: (ipower 2 0) -> AssertionError: Assert failed: (= 0 (rem % a))
+    (power -2 3) -> -8
+    Second part of invalid postcondition violated: (ipower -2 3) -> AssertionError: Assert failed: (<= 0 %)
+
+========== Lists ==========
+    List: (list 1 2 "Hello" 3 4) -> (1 2 "Hello" 3 4)
+    List variable: (def lst (list 1 2 "Hello" 3 4)) -> #'user/lst
+    List test: (list? lst) -> true
+Operations
+    Length: (count lst) -> 5
+    Head: (first lst) -> 1
+    Tail: (rest lst) -> (2 "Hello" 3 4)
+    Add element: (cons 0 lst) -> (0 1 2 "Hello" 3 4)
+    Add elements: (conj lst 0 -1) -> (-1 0 1 2 "Hello" 3 4)
+Empty list
+    (empty? (rest (list 1))) -> true
+    (empty? (list)) -> true
+    (empty? ()) -> true
+    (empty? lst) -> false
+Custom functions
+    (foldLeft 0 + (list 1 2 3 4)) -> 10
+    (foldRight 1 * (list 1 2 3 4)) -> 24
+
+---------- Tail-call optimisation ----------
+    (count (range 1000000)) -> 1000000
+    (foldLeft 0 + (range 1000000)) -> StackOverflowError:
+    (foldLeft' 0 + (range 1000000)) -> 499999500000
+
+---------- Maps ----------
+    Map: {"x" 1, "y" 2} -> {"x" 1, "y" 2}
+    m -> {"x" 1, "y" 2}
+Tests
+    (map? m) -> true
+    (empty? {}) -> true
+    (contains? m "x") -> true
+Queries
+    (get m "x") -> 1
+    (get m "z") ->
+    (count m) -> 2
+    (keys m) -> ("x" "y")
+    (vals m) -> (1 2)
+    (contains? m "x") -> true
+Modifications
+    (assoc m "z" 3) -> {"x" 1, "y" 2, "z" 3}
+    (assoc m "x" 3) -> {"x" 3, "y" 2}
+
+---------- Read ----------
+    (read-string "(+ x 10 (- x y))") -> (+ x 10 (- x y))
+    r -> (+ x 10 (- x y))
+    (type r) -> class clojure.lang.PersistentList
+Types
+    (type (nth r 0)) -> class clojure.lang.Symbol
+    (type (nth r 1)) -> class clojure.lang.Symbol
+    (type (nth r 2)) -> class java.lang.Long
+    (type (nth r 3)) -> class clojure.lang.PersistentList
+Symbol conversion
+    (= (symbol "x") (quote x)) -> true
+    (= "x" (str (symbol "x"))) -> true
+
+========== Functions ==========
+
+---------- Ordinary functions ----------
+    Identity function: (identity [1 2 3]) -> [1 2 3]
+    Constant function: ((constantly 10) 20 30) -> 10
+
+---------- High-order functions ----------
+    Function composition: ((comp square square square) 2) -> 256
+    Currying: (def sum (partial foldLeft' 0 +)) -> #'user/sum
+    (sum [1 2 3]) -> 6
+    Juxtaposition: ((juxt + - * /) 1 2 3 4) -> [10 -8 24 1/24]
+    Application: (apply + [1 2 3]) -> 6
+    Map: (mapv (fn [n] (+ 1 n)) [1 2 3]) -> [2 3 4]
+
+---------- Variable-argument functions ----------
+    (sumSquares 10 20) -> 500
+
+========================================
+Objects and evaluation
+========================================
+
+========== JavaScript-like objects ==========
+
+---------- Maps as objects ----------
+    point -> {"x" 10, "y" 20}
+    Map as function: (point "x") -> 10
+
+---------- Keywords ----------
+    Keyword: :x -> :x
+    (= :x (keyword "x")) -> true
+    Keywords map: point -> {:x 10, :y 20}
+    Keywords as functions: (:x point) -> 10
+
+---------- Prototypes ----------
+    (proto-get shifted-point :dx) -> 1
+    (proto-get shifted-point :x) -> 10
+    (proto-get shifted-point :y) -> 100
+
+---------- Methods ----------
+    (proto-call point :getX) -> 10
+    (proto-call shifted-point :getX) -> 11
+    (proto-call shifted-point :add 2 3) -> 5
+
+---------- Shugaring ----------
+    (_getX point) -> 10
+    (_getX shifted-point) -> 11
+    (_add shifted-point 2 3) -> 5
+    (_x point) -> 10
+    (_x shifted-point) -> 10
+
+---------- Constructors ----------
+    (_getX point) -> 10
+    (_getX shifted-point) -> 11
+    (_add shifted-point 2 3) -> 5
+    (_x point) -> 10
+    (_x shifted-point) -> 10
+
+========== Java-like objects ==========
+
+---------- Interfaces and Classes ----------
+    point -> user.Pt@7a7a2e
+    (.x point) -> 10
+    (.y point) -> 20
+    (.getX point) -> 10
+    (.getY point) -> 20
+    shifted-point -> user.ShiftedPt@15bf9b3
+    (.getX shifted-point) -> 11
+    (.getY shifted-point) -> 22
+
+---------- Java method implementation ----------
+    (= (Pair. 1 2) (Pair. 1 2)) -> true
+    (= (Pt. 1 2) (Pt. 1 2)) -> false
+    (.compareTo (Pair. 1 2) (Pair. 1 1)) -> 1
+
+---------- Mutable fields ----------
+    (.getFirst mutable-pair) -> 1
+    (.getSecond mutable-pair) -> 2
+    (.setFirst mutable-pair 10) -> 10
+    (.setSecond mutable-pair 20) -> 20
+    (.getFirst mutable-pair) -> 10
+    (.getSecond mutable-pair) -> 20
+    (setPair mutable-pair 100 200) -> 200
+    (.getFirst mutable-pair) -> 100
+    (.getSecond mutable-pair) -> 200
+
+========== Evaluation Order ==========
+
+---------- Applicative evaluation order ----------
+        trace 1
+        trace 2
+        evaluate f
+    (add-app (trace 1) (trace 2)) -> 3
+        trace 2
+        evaluate f
+    (let [v (trace 2)] (add-app v v)) -> 4
+
+---------- Normal evaluation order ----------
+        evaluate f
+        trace 1
+        trace 2
+    (add-norm (quote (trace 1)) (quote (trace 2))) -> 3
+        evaluate f
+        trace 2
+        trace 2
+    (let [v (quote (trace 2))] (add-norm v v)) -> 4
+
+---------- Lazy evaluation order ----------
+        evaluate f
+        trace 1
+        trace 2
+    (add-lazy (delay (trace 1)) (delay (trace 2))) -> 3
+        evaluate f
+        trace 2
+    (let [v (delay (trace 2))] (add-lazy v v)) -> 4
+
+---------- Streams ----------
+Finite streams
+    (sEmpty? sNil) -> true
+    (sEmpty? (sCons 1 nil)) -> false
+    (sCons 1 (sCons 2 (sCons 3 nil))) -> [1 [2 [3 nil]]]
+    (sTake 2 (sCons 1 (sCons 2 (sCons 3 nil)))) -> [1 #object[clojure.lang.Delay 0x1c66ade {:status :pending, :val nil}]]
+    (sToList (sTake 2 (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 2)
+    (sToList (sFilter odd? (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 3)
+    (sToList (sTakeWhile (partial >= 2) (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 2)
+    (sAny? (partial = 2) (sCons 1 (sCons 2 (sCons 3 nil)))) -> true
+    (sAny? (partial = 4) (sCons 1 (sCons 2 (sCons 3 nil)))) -> false
+Infinite streams
+    (sToList (sTake 10 stream-ones)) -> (1 1 1 1 1 1 1 1 1 1)
+    (sToList (sTake 10 stream-integers)) -> UnsupportedOperationException: nth not supported on this type: user$stream_integers
+    (sToList (sTake 10 (sMap (partial * 10) (stream-integers 0)))) -> (0 10 20 30 40 50 60 70 80 90)
+    (sToList (sTake 10 primes)) -> (2 3 5 7 11 13 17 19 23 29)
+
+---------- Lazy sequences ----------
+    (apply list (take 10 (letfn [(lazy-ones [] (cons 1 (lazy-seq (lazy-ones))))] (lazy-ones)))) -> (1 1 1 1 1 1 1 1 1 1)
+    (apply list (take 10 (lazy-integers 0))) -> (0 1 2 3 4 5 6 7 8 9)
+    (apply list (take 10 lazy-primes)) -> (2 3 5 7 11 13 17 19 23 29)
+
+========== Evaluation Order ==========
+
+---------- Applicative evaluation order ----------
+        trace 1
+        trace 2
+        evaluate f
+    (add-app (trace 1) (trace 2)) -> 3
+        trace 2
+        evaluate f
+    (let [v (trace 2)] (add-app v v)) -> 4
+
+---------- Normal evaluation order ----------
+        evaluate f
+        trace 1
+        trace 2
+    (add-norm (quote (trace 1)) (quote (trace 2))) -> 3
+        evaluate f
+        trace 2
+        trace 2
+    (let [v (quote (trace 2))] (add-norm v v)) -> 4
+
+---------- Lazy evaluation order ----------
+        evaluate f
+        trace 1
+        trace 2
+    (add-lazy (delay (trace 1)) (delay (trace 2))) -> 3
+        evaluate f
+        trace 2
+    (let [v (delay (trace 2))] (add-lazy v v)) -> 4
+
+---------- Streams ----------
+Finite streams
+    (sEmpty? sNil) -> true
+    (sEmpty? (sCons 1 nil)) -> false
+    (sCons 1 (sCons 2 (sCons 3 nil))) -> [1 [2 [3 nil]]]
+    (sTake 2 (sCons 1 (sCons 2 (sCons 3 nil)))) -> [1 #object[clojure.lang.Delay 0x4621bd {:status :pending, :val nil}]]
+    (sToList (sTake 2 (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 2)
+    (sToList (sFilter odd? (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 3)
+    (sToList (sTakeWhile (partial >= 2) (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 2)
+    (sAny? (partial = 2) (sCons 1 (sCons 2 (sCons 3 nil)))) -> true
+    (sAny? (partial = 4) (sCons 1 (sCons 2 (sCons 3 nil)))) -> false
+Infinite streams
+    (sToList (sTake 10 stream-ones)) -> (1 1 1 1 1 1 1 1 1 1)
+    (sToList (sTake 10 stream-integers)) -> UnsupportedOperationException: nth not supported on this type: user$stream_integers
+    (sToList (sTake 10 (sMap (partial * 10) (stream-integers 0)))) -> (0 10 20 30 40 50 60 70 80 90)
+    (sToList (sTake 10 primes)) -> (2 3 5 7 11 13 17 19 23 29)
+
+---------- Lazy sequences ----------
+    (apply list (take 10 (letfn [(lazy-ones [] (cons 1 (lazy-seq (lazy-ones))))] (lazy-ones)))) -> (1 1 1 1 1 1 1 1 1 1)
+    (apply list (take 10 (lazy-integers 0))) -> (0 1 2 3 4 5 6 7 8 9)
+    (apply list (take 10 lazy-primes)) -> (2 3 5 7 11 13 17 19 23 29)
+
+========== Churh Encoding ==========
+
+---------- Numbers ----------
+zero and succ
+    (to-int zero) -> 0
+    (to-int (succ zero)) -> 1
+    (to-int (succ (succ zero))) -> 2
+    (to-int (succ (succ (succ zero)))) -> 3
+values
+    (to-int zero) -> 0
+    (to-int one) -> 1
+    (to-int two) -> 2
+    (to-int three) -> 3
+add
+    (to-int (add zero zero)) -> 0
+    (to-int (add two three)) -> 5
+pred
+    (to-int (pred two)) -> 1
+    (to-int (pred one)) -> 0
+    (to-int (pred zero)) -> 0
+subtract
+    (to-int (subtract three one)) -> 2
+    (to-int (subtract three two)) -> 1
+    (to-int (subtract one one)) -> 0
+    (to-int (subtract one three)) -> 0
+
+---------- Pairs ----------
+    (def pp (pair 10 20)) -> #'user/pp
+    (fst pp) -> 10
+    (snd pp) -> 20
+
+---------- Booleans ----------
+values
+    (to-boolean b-true) -> true
+    (to-boolean b-false) -> false
+not
+    (to-boolean (b-not b-true)) -> false
+    (to-boolean (b-not b-false)) -> true
+and
+    (to-boolean (b-and b-false b-false)) -> false
+    (to-boolean (b-and b-true b-false)) -> false
+    (to-boolean (b-and b-false b-true)) -> false
+    (to-boolean (b-and b-true b-true)) -> true
+or
+    (to-boolean (b-or b-false b-false)) -> false
+    (to-boolean (b-or b-true b-false)) -> true
+    (to-boolean (b-or b-false b-true)) -> true
+    (to-boolean (b-or b-true b-true)) -> true
+predicates
+    (to-boolean (is-zero? zero)) -> true
+    (to-boolean (is-zero? three)) -> false
+    (to-boolean (less-or-equal? one three)) -> true
+    (to-boolean (less-or-equal? one one)) -> true
+    (to-boolean (less-or-equal? three one)) -> false
+    (to-boolean (equal? one three)) -> false
+    (to-boolean (equal? one one)) -> true
+    (to-boolean (equal? three one)) -> false
+
+---------- Signed numbers ----------
+    (signed-to-int (signed zero)) -> 0
+    (signed-to-int (signed two)) -> 2
+    (signed-to-int (negate (signed zero))) -> 0
+    (signed-to-int (negate (signed two))) -> -2
+    (signed-to-int (signed-add (signed one) (signed two))) -> 3
+    (signed-to-int (signed-subtract (signed one) (signed two))) -> -1
+
+========== Java-like objects ==========
+
+---------- Interfaces and Classes ----------
+    point -> user.Pt@bab2f1
+    (.x point) -> 10
+    (.y point) -> 20
+    (.getX point) -> 10
+    (.getY point) -> 20
+    shifted-point -> user.ShiftedPt@1d29a59
+    (.getX shifted-point) -> 11
+    (.getY shifted-point) -> 22
+
+---------- Java method implementation ----------
+    (= (Pair. 1 2) (Pair. 1 2)) -> true
+    (= (Pt. 1 2) (Pt. 1 2)) -> false
+    (.compareTo (Pair. 1 2) (Pair. 1 1)) -> 1
+
+---------- Mutable fields ----------
+    (.getFirst mutable-pair) -> 1
+    (.getSecond mutable-pair) -> 2
+    (.setFirst mutable-pair 10) -> 10
+    (.setSecond mutable-pair 20) -> 20
+    (.getFirst mutable-pair) -> 10
+    (.getSecond mutable-pair) -> 20
+    (setPair mutable-pair 100 200) -> 200
+    (.getFirst mutable-pair) -> 100
+    (.getSecond mutable-pair) -> 200
+
+========== Evaluation Order ==========
+
+---------- Applicative evaluation order ----------
+        trace 1
+        trace 2
+        evaluate f
+    (add-app (trace 1) (trace 2)) -> 3
+        trace 2
+        evaluate f
+    (let [v (trace 2)] (add-app v v)) -> 4
+
+---------- Normal evaluation order ----------
+        evaluate f
+        trace 1
+        trace 2
+    (add-norm (quote (trace 1)) (quote (trace 2))) -> 3
+        evaluate f
+        trace 2
+        trace 2
+    (let [v (quote (trace 2))] (add-norm v v)) -> 4
+
+---------- Lazy evaluation order ----------
+        evaluate f
+        trace 1
+        trace 2
+    (add-lazy (delay (trace 1)) (delay (trace 2))) -> 3
+        evaluate f
+        trace 2
+    (let [v (delay (trace 2))] (add-lazy v v)) -> 4
+
+---------- Streams ----------
+Finite streams
+    (sEmpty? sNil) -> true
+    (sEmpty? (sCons 1 nil)) -> false
+    (sCons 1 (sCons 2 (sCons 3 nil))) -> [1 [2 [3 nil]]]
+    (sTake 2 (sCons 1 (sCons 2 (sCons 3 nil)))) -> [1 #object[clojure.lang.Delay 0x6804cd {:status :pending, :val nil}]]
+    (sToList (sTake 2 (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 2)
+    (sToList (sFilter odd? (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 3)
+    (sToList (sTakeWhile (partial >= 2) (sCons 1 (sCons 2 (sCons 3 nil))))) -> (1 2)
+    (sAny? (partial = 2) (sCons 1 (sCons 2 (sCons 3 nil)))) -> true
+    (sAny? (partial = 4) (sCons 1 (sCons 2 (sCons 3 nil)))) -> false
+Infinite streams
+    (sToList (sTake 10 stream-ones)) -> (1 1 1 1 1 1 1 1 1 1)
+    (sToList (sTake 10 stream-integers)) -> UnsupportedOperationException: nth not supported on this type: user$stream_integers
+    (sToList (sTake 10 (sMap (partial * 10) (stream-integers 0)))) -> (0 10 20 30 40 50 60 70 80 90)
+    (sToList (sTake 10 primes)) -> (2 3 5 7 11 13 17 19 23 29)
+
+---------- Lazy sequences ----------
+    (apply list (take 10 (letfn [(lazy-ones [] (cons 1 (lazy-seq (lazy-ones))))] (lazy-ones)))) -> (1 1 1 1 1 1 1 1 1 1)
+    (apply list (take 10 (lazy-integers 0))) -> (0 1 2 3 4 5 6 7 8 9)
+    (apply list (take 10 lazy-primes)) -> (2 3 5 7 11 13 17 19 23 29)
+
+========== Churh Encoding ==========
+
+---------- Numbers ----------
+zero and succ
+    (to-int zero) -> 0
+    (to-int (succ zero)) -> 1
+    (to-int (succ (succ zero))) -> 2
+    (to-int (succ (succ (succ zero)))) -> 3
+values
+    (to-int zero) -> 0
+    (to-int one) -> 1
+    (to-int two) -> 2
+    (to-int three) -> 3
+add
+    (to-int (add zero zero)) -> 0
+    (to-int (add two three)) -> 5
+pred
+    (to-int (pred two)) -> 1
+    (to-int (pred one)) -> 0
+    (to-int (pred zero)) -> 0
+subtract
+    (to-int (subtract three one)) -> 2
+    (to-int (subtract three two)) -> 1
+    (to-int (subtract one one)) -> 0
+    (to-int (subtract one three)) -> 0
+
+---------- Pairs ----------
+    (def pp (pair 10 20)) -> #'user/pp
+    (fst pp) -> 10
+    (snd pp) -> 20
+
+---------- Booleans ----------
+values
+    (to-boolean b-true) -> true
+    (to-boolean b-false) -> false
+not
+    (to-boolean (b-not b-true)) -> false
+    (to-boolean (b-not b-false)) -> true
+and
+    (to-boolean (b-and b-false b-false)) -> false
+    (to-boolean (b-and b-true b-false)) -> false
+    (to-boolean (b-and b-false b-true)) -> false
+    (to-boolean (b-and b-true b-true)) -> true
+or
+    (to-boolean (b-or b-false b-false)) -> false
+    (to-boolean (b-or b-true b-false)) -> true
+    (to-boolean (b-or b-false b-true)) -> true
+    (to-boolean (b-or b-true b-true)) -> true
+predicates
+    (to-boolean (is-zero? zero)) -> true
+    (to-boolean (is-zero? three)) -> false
+    (to-boolean (less-or-equal? one three)) -> true
+    (to-boolean (less-or-equal? one one)) -> true
+    (to-boolean (less-or-equal? three one)) -> false
+    (to-boolean (equal? one three)) -> false
+    (to-boolean (equal? one one)) -> true
+    (to-boolean (equal? three one)) -> false
+
+---------- Signed numbers ----------
+    (signed-to-int (signed zero)) -> 0
+    (signed-to-int (signed two)) -> 2
+    (signed-to-int (negate (signed zero))) -> 0
+    (signed-to-int (negate (signed two))) -> -2
+    (signed-to-int (signed-add (signed one) (signed two))) -> 3
+    (signed-to-int (signed-subtract (signed one) (signed two))) -> -1
+
+S:\original-paradigms\clojure>

@@ -1,0 +1,14 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Users/Egor/Geany/Rational/rational.cpp
+rational.h
+C:/Users/Egor/Geany/Rational/rational.h
+
+C:/Users/Egor/Geany/Rational/rational.h
+
